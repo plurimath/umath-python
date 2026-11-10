@@ -9,7 +9,10 @@ description = "Shared PARG raw syntax runtime for umath"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = ["parsanol==0.1.23"]
-license = {text = "MIT"}
+license = {text = "BSD-2-Clause"}
+
+[tool.setuptools]
+license-files = ["LICENSE", "licenses/*"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

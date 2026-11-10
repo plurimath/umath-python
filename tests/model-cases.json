@@ -1,0 +1,173 @@
+[
+  {
+    "input": "α+1",
+    "decimal": ".",
+    "model": {
+      "expression": {
+        "expr": {
+          "expr": {
+            "factor": {
+              "digit": {
+                "number": "1"
+              }
+            }
+          },
+          "operator": {
+            "spelling": "+",
+            "value": "+",
+            "kind": "symbol"
+          }
+        },
+        "factor": {
+          "ordinary_symbols": {
+            "spelling": "&#x3b1;",
+            "value": "α",
+            "kind": "symbol"
+          }
+        }
+      },
+      "decimal": "."
+    }
+  },
+  {
+    "input": "(a)/(b)",
+    "decimal": ".",
+    "model": {
+      "expression": {
+        "frac": {
+          "denominator": {
+            "factor": {
+              "intermediate_exp": {
+                "close_paren": {
+                  "spelling": ")",
+                  "value": ")",
+                  "kind": "paren"
+                },
+                "factor": {
+                  "atom": {
+                    "alphanumeric": {
+                      "spelling": "b",
+                      "value": "b",
+                      "kind": "unlisted"
+                    }
+                  }
+                },
+                "open_paren": {
+                  "spelling": "(",
+                  "value": "(",
+                  "kind": "paren"
+                }
+              }
+            }
+          },
+          "numerator": {
+            "intermediate_exp": {
+              "close_paren": {
+                "spelling": ")",
+                "value": ")",
+                "kind": "paren"
+              },
+              "factor": {
+                "atom": {
+                  "alphanumeric": {
+                    "spelling": "a",
+                    "value": "a",
+                    "kind": "unlisted"
+                  }
+                }
+              },
+              "open_paren": {
+                "spelling": "(",
+                "value": "(",
+                "kind": "paren"
+              }
+            }
+          }
+        }
+      },
+      "decimal": "."
+    }
+  },
+  {
+    "input": "√x",
+    "decimal": ".",
+    "model": {
+      "expression": {
+        "factor": {
+          "root": {
+            "first_value": {
+              "factor": {
+                "atom": {
+                  "alphanumeric": {
+                    "spelling": "x",
+                    "value": "x",
+                    "kind": "unlisted"
+                  }
+                }
+              }
+            },
+            "root_symbol": {
+              "spelling": "&#x221a;",
+              "value": "√",
+              "kind": "unlisted"
+            }
+          }
+        }
+      },
+      "decimal": "."
+    }
+  },
+  {
+    "input": "1,5",
+    "decimal": ",",
+    "model": {
+      "expression": {
+        "factor": {
+          "decimal_number": {
+            "decimal": ",",
+            "fractional": {
+              "number": "5"
+            },
+            "whole": {
+              "number": "1"
+            }
+          }
+        }
+      },
+      "decimal": ","
+    }
+  },
+  {
+    "input": "",
+    "decimal": ".",
+    "model": {
+      "decimal": "."
+    }
+  },
+  {
+    "input": "a#eq1",
+    "decimal": ".",
+    "model": {
+      "expression": {
+        "factor": {
+          "atom": {
+            "alphanumeric": {
+              "spelling": "a",
+              "value": "a",
+              "kind": "unlisted"
+            }
+          }
+        }
+      },
+      "label": "eq1",
+      "decimal": "."
+    }
+  },
+  {
+    "input": "##",
+    "decimal": ".",
+    "model": {
+      "decimal": "."
+    }
+  }
+]

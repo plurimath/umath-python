@@ -8,6 +8,7 @@ from parsanol import PargArtifact, BindingsArtifact, ParseFailed, ParsanolError
 from .preprocessor import preprocess
 from .legacy import legacy_tree
 from .errors import ParseError
+from .model_bridge import parse_model_json, ModelParseError, ModelRuntimeUnavailable
 
 __version__ = "0.1.0"
 DECIMAL_ENTRIES = {".": "dot", ",": "comma", "٫": "arabic"}
@@ -84,4 +85,4 @@ def parse_raw(source: str, *, decimal: str = ".") -> RawParseResult:
         raise ParseError(error, source, text) from error
     return RawParseResult(source, text, decimal, entry, result.shape, result.bindings, label, labeled)
 
-__all__ = ["parse_raw", "parse_grammar", "artifact_info", "RawParseResult", "ParseFailed", "ParseError", "ParsanolError", "DECIMAL_ENTRIES"]
+__all__ = ["parse_model_json", "ModelParseError", "ModelRuntimeUnavailable", "parse_raw", "parse_grammar", "artifact_info", "RawParseResult", "ParseFailed", "ParseError", "ParsanolError", "DECIMAL_ENTRIES"]
