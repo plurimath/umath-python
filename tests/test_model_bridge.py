@@ -14,7 +14,6 @@ import umath as stage
 bridge = importlib.import_module('umath.model_bridge')
 ENV = 'UMATH_MODEL_CDYLIB'
 
-@unittest.skipUnless(os.environ.get(ENV), 'real canonical stage library required')
 class ModelBridgeTests(unittest.TestCase):
     def test_native_models(self):
         rows = json.loads(Path(__file__).with_name('model-cases.json').read_text(encoding="utf-8"))
@@ -37,14 +36,15 @@ class ModelBridgeTests(unittest.TestCase):
 
     def test_missing_and_relative_library(self):
         with patch.dict(os.environ, {ENV:''}):
-            with self.assertRaises(stage.ModelRuntimeUnavailable): stage.parse_model_json('x')
+            with patch.object(bridge, 'packaged_library_path', return_value=None):
+                with self.assertRaises(stage.ModelRuntimeUnavailable): stage.parse_model_json('x')
         with patch.dict(os.environ, {ENV:'relative-library.so'}):
             with self.assertRaises(stage.ModelRuntimeUnavailable): stage.parse_model_json('x')
         with patch.dict(os.environ, {ENV:str(Path(__file__).resolve().with_name('missing-canonical-stage-library'))}):
             with self.assertRaises(stage.ModelRuntimeUnavailable): stage.parse_model_json('x')
 
     def test_actual_version_and_unsupported_version_guard(self):
-        library = bridge._load(os.environ[ENV])
+        library = bridge._load(bridge._library_path())
         version = getattr(library, 'umath_abi_version')
         self.assertEqual(version(), 1)
         # Exercise the compatibility guard with the actual loaded CDLL.
@@ -52,10 +52,10 @@ class ModelBridgeTests(unittest.TestCase):
         with patch.object(library, 'umath_abi_version', lambda: 2):
             with patch.object(bridge.ctypes, 'CDLL', return_value=library):
                 with self.assertRaises(stage.ModelRuntimeUnavailable):
-                    bridge._load(os.environ[ENV] + '.unsupported-version-probe')
+                    bridge._load(bridge._library_path() + '.unsupported-version-probe')
 
     def test_owned_native_result_freed_once_on_success_and_decode_failure(self):
-        library = bridge._load(os.environ[ENV])
+        library = bridge._load(bridge._library_path())
         free = getattr(library, 'umath_free_json_v1')
         calls = []
         def release(pointer):

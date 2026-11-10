@@ -8,6 +8,7 @@ from parsanol import PargArtifact, BindingsArtifact, ParseFailed, ParsanolError
 from .preprocessor import preprocess
 from .legacy import legacy_tree
 from .errors import ParseError
+from .native_library import raw_library_path
 from .model_bridge import parse_model_json, ModelParseError, ModelRuntimeUnavailable
 
 __version__ = "0.1.0"
@@ -40,7 +41,7 @@ class RawParseResult:
 @lru_cache(maxsize=1)
 def _artifacts():
     assets = files(__package__).joinpath("artifacts")
-    artifact = PargArtifact(assets.joinpath("umath.json").read_text(encoding="utf-8"))
+    artifact = PargArtifact(assets.joinpath("umath.json").read_text(encoding="utf-8"), library_path=raw_library_path())
     bindings = BindingsArtifact.from_json(assets.joinpath("umath.bindings.python.json").read_text(encoding="utf-8"), expected_target="python")
     return artifact, bindings
 

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=68", "wheel>=0.45"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,7 +8,7 @@ version = "0.1.0"
 description = "Shared PARG raw syntax runtime for umath"
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["parsanol==0.1.23"]
+dependencies = ["parsanol @ git+https://github.com/parsanol/parsanol-python.git@e67490ba43fe2884f4130c65b74775e006274b77"]
 license = {text = "BSD-2-Clause"}
 
 [tool.setuptools]

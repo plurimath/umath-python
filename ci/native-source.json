@@ -5,6 +5,6 @@
   "rust_toolchain": "1.95.0",
   "python_runtime": {
     "repository": "parsanol/parsanol-python",
-    "revision": "b92d4f94c0eacd0fa1ae9424e25c88fef529071c"
+    "revision": "e67490ba43fe2884f4130c65b74775e006274b77"
   }
 }

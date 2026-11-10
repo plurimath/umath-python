@@ -1,0 +1,3 @@
+include ci/native-source.json
+include scripts/ci.py
+recursive-include tests *.py *.json

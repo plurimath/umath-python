@@ -8,13 +8,15 @@ result = umath.parse_raw("x+1")
 print(result.bindings)
 ```
 
-Install `plurimath-umath` and `parsanol==0.1.23`. The Parsanol Python runtime
-loads its native C ABI library. Set `PARSANOL_CDYLIB` to an existing compatible
-`libparsanol.so`, `.dylib`, or DLL if the dependency does not vendor one.
-No native build is performed by this package. The wheel does not contain
-libparsanol; the verified local setup uses `PARSANOL_CDYLIB` pointing to the
-library shipped by the installed Parsanol Ruby gem. `PARSANOL_CDYLIB` is
-the environment variable supported by the Python dependency.
+Platform wheels carry one canonical Rust library for both raw parsing and
+model JSON. Native discovery is automatic; environment variables are optional
+overrides. These local candidates require the explicit-context Parsanol source
+revision pinned in `pyproject.toml`. Delivery of that unreleased upstream source
+is still gated; it is not presented as an existing PyPI release.
+
+Source builds require Git, Cargo/Rust 1.95, and the pinned public native source:
+run `python scripts/ci.py build-native` before building the Python wheel. No
+compiler or global package is installed automatically.
 
 `parse_raw(source, decimal=".")` preprocesses caller text and returns a
 `RawParseResult` with source, grammar text, shape, declared bindings and label.
@@ -46,11 +48,11 @@ are retained. This is a known ABI limitation, separate from wrapper inversion.
 ## Canonical model JSON
 
 `umath.parse_model_json(source, decimal=".")` returns a Python dict containing
-the JSON emitted by the canonical Rust stage and upstream LutaML codecs. Set
-`UMATH_MODEL_CDYLIB` to the absolute path of the separately installed,
-platform-specific `umath` Rust cdylib exporting model ABI version 1. The
-Python wheel includes no native binary. This route does not require loading
-the separate Parsanol C ABI library used by `parse_raw`.
+the JSON emitted by the canonical Rust stage and upstream LutaML codecs. The platform wheel automatically loads its canonical library, which exports
+both model ABI version 1 and the Parsanol raw C ABI. Set `UMATH_MODEL_CDYLIB`
+to override the model library, or `PARSANOL_CDYLIB` to override the raw context.
+Overrides remain explicit and no process-wide environment/default loader is
+changed by autodiscovery.
 
 `ModelParseError.error` preserves the native error payload; native offsets
 refer to preprocessed input and use the native farthest-failure reporter.
@@ -81,3 +83,11 @@ The runner rejects missing native dependencies, source-checkout imports,
 changed fixture digests, and skipped native tests. Full command logs and
 measured results are saved under `.ci-evidence/`. Fixture origins and the two
 known AsciiMath native reporter differences are recorded with the tests.
+
+Native wheels are tagged `py3-none` with their actual platform. Linux builds
+use `linux_*` tags and record their native requirements; no manylinux promise
+is inferred. macOS builds use an explicit deployment target and one
+architecture, not a universal claim. Native source pins, binary hashes, and
+license notices are shipped under `_native/`. The installed-wheel runner
+clears both library overrides and verifies both APIs still work without
+changing Parsanol's default native singleton.
