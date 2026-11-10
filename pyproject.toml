@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "umath"
+name = "plurimath-umath"
 version = "0.1.0"
 description = "Shared PARG raw syntax runtime for umath"
 readme = "README.md"

@@ -6,6 +6,8 @@ from importlib.resources import files
 import json
 from parsanol import PargArtifact, BindingsArtifact, ParseFailed, ParsanolError
 from .preprocessor import preprocess
+from .legacy import legacy_tree
+from .errors import ParseError
 
 __version__ = "0.1.0"
 DECIMAL_ENTRIES = {".": "dot", ",": "comma", "٫": "arabic"}
@@ -14,7 +16,7 @@ DECIMAL_ENTRIES = {".": "dot", ",": "comma", "٫": "arabic"}
 class RawParseResult:
     """Normalized grammar shape and declared bindings, not a typed model.
 
-    Failure offsets are UTF-8 byte offsets in ``text`` after preprocessing.
+    Slice offsets are UTF-8 byte offsets in ``text`` after preprocessing.
     ``bindings`` preserves the names and shape of the authoritative artifact.
     """
     source: str
@@ -25,6 +27,14 @@ class RawParseResult:
     bindings: dict
     label: str | None = None
     labeled: bool = False
+
+    @property
+    def tree(self):
+        """Legacy raw tree values; native JSON object member order is retained.
+
+        Lists and slice metadata are preserved. Ruby Hash insertion order
+        cannot be reconstructed from the native JSON wire."""
+        return legacy_tree(self.bindings.get("umath_tree"))
 
 @lru_cache(maxsize=1)
 def _artifacts():
@@ -55,7 +65,10 @@ def parse_grammar(text: str, *, decimal: str = ".") -> RawParseResult:
     """
     entry = _validate(text, decimal)
     artifact, declared = _artifacts()
-    shape = artifact.parse(text, entry)
+    try:
+        shape = artifact.parse(text, entry)
+    except ParseFailed as error:
+        raise ParseError(error, text, text, relocate=False) from error
     bound = declared.apply(artifact.envelope, entry, shape)
     return RawParseResult(text, text, decimal, entry, shape, bound)
 
@@ -65,7 +78,10 @@ def parse_raw(source: str, *, decimal: str = ".") -> RawParseResult:
     text, label, labeled = preprocess(source)
     if text is None:
         return RawParseResult(source, None, decimal, entry, None, {}, label, labeled)
-    result = parse_grammar(text, decimal=decimal)
+    try:
+        result = parse_grammar(text, decimal=decimal)
+    except ParseFailed as error:
+        raise ParseError(error, source, text) from error
     return RawParseResult(source, text, decimal, entry, result.shape, result.bindings, label, labeled)
 
-__all__ = ["parse_raw", "parse_grammar", "artifact_info", "RawParseResult", "ParseFailed", "ParsanolError", "DECIMAL_ENTRIES"]
+__all__ = ["parse_raw", "parse_grammar", "artifact_info", "RawParseResult", "ParseFailed", "ParseError", "ParsanolError", "DECIMAL_ENTRIES"]
