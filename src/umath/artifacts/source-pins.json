@@ -16,7 +16,6 @@
     "sha256": "2ad8ef21530643ab4c2d5e5d6b457f403685ecbb7bce817f51b6cb65bf7771f5",
     "header_sha256": "73f8596ca61184891b77fe0c8f7a7e12e5cf675eeae0b19f031dfc374019f467",
     "abi_version": 1,
-    "producer_receipt": "handoffs/codex-rust/umath-abi-check.json",
     "producer_receipt_sha256": "6ae0f9cee98b3bbabfec6ed90ac2883a0dce9ac4858b9a31da4ffc21f342639a",
     "source_head": "f552e8984d66db8fd2aebdb1336a3606c646b8f2"
   }

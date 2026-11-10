@@ -1,0 +1,28 @@
+{
+  "raw": {
+    "source_repository": "https://github.com/plurimath/umath",
+    "source_commit": "0fca02275435c47799d67c970ce2ad9f726d3a70",
+    "source_files": {
+      "artifacts/umath.json": "703824533584b29e17ee807a30868c9f6923e26d0ee40c9a0a7b6c7de793220f",
+      "artifacts/umath.bindings.python.json": "fcfaf633195bcac4c64b35413d9bc393fd4cdfe55424657792604d3d930332c3",
+      "grammars/umath.parg": "8fbf980d93a4e7a47638c795ae86c519626956b6a68a65d1e36b610587602fcc",
+      "lib/umath/preprocessor.rb": "e1b73bd4e62478e5405c8132a2470bc2f5afe8470e0b84362ce04ed3c1937de3",
+      "grammars/umath.wrappers.json": "7b4136a18c86a56c4253f31d8ca479085f87b0e3dd319f6c989c69505b157b2c",
+      "scripts/unwrap.rb": "72d14c7b202d434f170bb6cf0e0ff101faecfc3fcaeebf656b33e54695f01ce3",
+      "lib/umath/source_map.rb": "564a8dc4ca6055bd0a2dafd119ab6e7ccfde3b1731a30ca3ab5fb7934027f41e"
+    },
+    "ruby_version": "4.0.1",
+    "parsanol_ruby_version": "1.3.134",
+    "boundary": "legacy raw tree; slices retain byte offsets and character lengths",
+    "sha256": "9549cc633a93b9067110248e6eeeee1b726aac82d6ebda0a6621b8265643b2af"
+  },
+  "model": {
+    "source_repository": "https://github.com/plurimath/umath-rs",
+    "source_commit": "f552e8984d66db8fd2aebdb1336a3606c646b8f2",
+    "abi_version": 1,
+    "native_library_sha256": "2ad8ef21530643ab4c2d5e5d6b457f403685ecbb7bce817f51b6cb65bf7771f5",
+    "sha256": "7bb0df088d4dae7e18a52fcc7f76e7c1c8764905f0bd08f567207dba665ae966",
+    "boundary": "exact canonical Rust-produced codec JSON fixtures; no lossless/idempotent claim",
+    "public_source_commit": "22796cf294ab1ecc6aaa8a735f033f574bb163dd"
+  }
+}

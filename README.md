@@ -61,3 +61,23 @@ JSON result is freed once, including decoding failures.
 This is portable model JSON, not generated Python classes. The upstream
 serializer's empty/nil omission policy is retained; lossless or idempotent
 model serialization is not claimed.
+
+## Verification
+
+CI builds the public Rust task commit pinned in `ci/native-source.json` once
+per Linux, macOS, and Windows platform. That library supplies both ABIs. The
+installed-wheel suite runs all committed model and raw fixtures on Python
+3.10–3.15 on Linux and the latest matrix version on macOS/Windows.
+
+```sh
+python scripts/ci.py build-native
+python scripts/ci.py install-wheel
+python scripts/ci.py test-installed
+```
+
+For an existing compatible platform library, use
+`python scripts/ci.py test-installed --library /absolute/path/to/library`.
+The runner rejects missing native dependencies, source-checkout imports,
+changed fixture digests, and skipped native tests. Full command logs and
+measured results are saved under `.ci-evidence/`. Fixture origins and the two
+known AsciiMath native reporter differences are recorded with the tests.

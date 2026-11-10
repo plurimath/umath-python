@@ -17,7 +17,7 @@ ENV = 'UMATH_MODEL_CDYLIB'
 @unittest.skipUnless(os.environ.get(ENV), 'real canonical stage library required')
 class ModelBridgeTests(unittest.TestCase):
     def test_native_models(self):
-        rows = json.loads(Path(__file__).with_name('model-cases.json').read_text())
+        rows = json.loads(Path(__file__).with_name('model-cases.json').read_text(encoding="utf-8"))
         for row in rows:
             with self.subTest(source=row['input']):
                 self.assertEqual(stage.parse_model_json(row['input'], decimal=row['decimal']), row['model'])
@@ -40,7 +40,7 @@ class ModelBridgeTests(unittest.TestCase):
             with self.assertRaises(stage.ModelRuntimeUnavailable): stage.parse_model_json('x')
         with patch.dict(os.environ, {ENV:'relative-library.so'}):
             with self.assertRaises(stage.ModelRuntimeUnavailable): stage.parse_model_json('x')
-        with patch.dict(os.environ, {ENV:'/missing-canonical-stage-library.so'}):
+        with patch.dict(os.environ, {ENV:str(Path(__file__).resolve().with_name('missing-canonical-stage-library'))}):
             with self.assertRaises(stage.ModelRuntimeUnavailable): stage.parse_model_json('x')
 
     def test_actual_version_and_unsupported_version_guard(self):
