@@ -1,7 +1,7 @@
 {
   "stage": "umath",
   "repository": "plurimath/umath-rs",
-  "revision": "57503442d08567d8f4de702dfd18c4087ccaa642",
+  "revision": "504c74f6a3b8e4bc62cb650029f4d00cbf2438f3",
   "rust_toolchain": "1.95.0",
   "python_runtime": {
     "repository": "parsanol/parsanol-python",
