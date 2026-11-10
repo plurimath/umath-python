@@ -1,0 +1,71 @@
+"""Shared-PARG raw syntax boundary; typed language models are not provided."""
+from __future__ import annotations
+from dataclasses import dataclass
+from functools import lru_cache
+from importlib.resources import files
+import json
+from parsanol import PargArtifact, BindingsArtifact, ParseFailed, ParsanolError
+from .preprocessor import preprocess
+
+__version__ = "0.1.0"
+DECIMAL_ENTRIES = {".": "dot", ",": "comma", "٫": "arabic"}
+
+@dataclass(frozen=True)
+class RawParseResult:
+    """Normalized grammar shape and declared bindings, not a typed model.
+
+    Failure offsets are UTF-8 byte offsets in ``text`` after preprocessing.
+    ``bindings`` preserves the names and shape of the authoritative artifact.
+    """
+    source: str
+    text: str | None
+    decimal: str
+    entry: str
+    shape: object
+    bindings: dict
+    label: str | None = None
+    labeled: bool = False
+
+@lru_cache(maxsize=1)
+def _artifacts():
+    assets = files(__package__).joinpath("artifacts")
+    artifact = PargArtifact(assets.joinpath("umath.json").read_text(encoding="utf-8"))
+    bindings = BindingsArtifact.from_json(assets.joinpath("umath.bindings.python.json").read_text(encoding="utf-8"), expected_target="python")
+    return artifact, bindings
+
+def artifact_info() -> dict:
+    """Return packaged source pins without requiring a native library."""
+    return json.loads(files(__package__).joinpath("artifacts/source-pins.json").read_text(encoding="utf-8"))
+
+def _validate(source, decimal):
+    if not isinstance(source, str):
+        raise TypeError("input must be a str")
+    source.encode("utf-8")
+    if "\x00" in source:
+        raise ValueError("input must not contain NUL (C ABI string boundary)")
+    if decimal not in DECIMAL_ENTRIES:
+        raise ValueError("unsupported decimal marker; expected '.', ',' or '٫'")
+    return DECIMAL_ENTRIES[decimal]
+
+def parse_grammar(text: str, *, decimal: str = ".") -> RawParseResult:
+    """Parse already-normalized grammar input without preprocessing.
+
+    Executes the official Parsanol native runtime and Python bindings. Does
+    not unwrap normalized captures or construct typed language models.
+    """
+    entry = _validate(text, decimal)
+    artifact, declared = _artifacts()
+    shape = artifact.parse(text, entry)
+    bound = declared.apply(artifact.envelope, entry, shape)
+    return RawParseResult(text, text, decimal, entry, shape, bound)
+
+def parse_raw(source: str, *, decimal: str = ".") -> RawParseResult:
+    """Preprocess caller input, then parse at the normalized syntax boundary."""
+    entry = _validate(source, decimal)
+    text, label, labeled = preprocess(source)
+    if text is None:
+        return RawParseResult(source, None, decimal, entry, None, {}, label, labeled)
+    result = parse_grammar(text, decimal=decimal)
+    return RawParseResult(source, text, decimal, entry, result.shape, result.bindings, label, labeled)
+
+__all__ = ["parse_raw", "parse_grammar", "artifact_info", "RawParseResult", "ParseFailed", "ParsanolError", "DECIMAL_ENTRIES"]

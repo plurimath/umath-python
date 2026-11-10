@@ -1,0 +1,12 @@
+{
+  "repository": "https://github.com/plurimath/umath",
+  "commit": "0fca02275435c47799d67c970ce2ad9f726d3a70",
+  "files": {
+    "artifacts/umath.json": "703824533584b29e17ee807a30868c9f6923e26d0ee40c9a0a7b6c7de793220f",
+    "artifacts/umath.bindings.python.json": "fcfaf633195bcac4c64b35413d9bc393fd4cdfe55424657792604d3d930332c3",
+    "grammars/umath.parg": "8fbf980d93a4e7a47638c795ae86c519626956b6a68a65d1e36b610587602fcc",
+    "lib/umath/preprocessor.rb": "e1b73bd4e62478e5405c8132a2470bc2f5afe8470e0b84362ce04ed3c1937de3"
+  },
+  "parsanol_python_commit": "b92d4f94c0eacd0fa1ae9424e25c88fef529071c",
+  "boundary": "normalized-raw-tree-and-python-bindings"
+}
