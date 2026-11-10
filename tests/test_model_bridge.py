@@ -71,4 +71,28 @@ class ModelBridgeTests(unittest.TestCase):
             self.assertEqual(len(calls), 2)
         self.assertTrue(all(calls))
 
+    def test_resource_envelope_is_distinct_and_owned_result_is_released(self):
+        library = bridge._load(bridge._library_path())
+        free = getattr(library, 'umath_free_json_v1')
+        calls = []
+        def release(pointer):
+            calls.append(pointer.value)
+            free(pointer)
+        # Allocate/free through the real native ABI. Substitute only the read
+        # to qualify Python handling of both documented resource categories.
+        with patch.object(library, 'umath_free_json_v1', release):
+            for category in ['recursion_limit', 'call_depth_limit']:
+                envelope = {'abi_version':1, 'ok':False, 'error':{
+                    'category':category, 'depth':1025, 'max_depth':1024,
+                    'byte_offset':None}}
+                with patch.object(bridge.ctypes, 'string_at', return_value=json.dumps(envelope).encode()):
+                    with self.assertRaises(stage.ModelResourceError) as raised:
+                        stage.parse_model_json('x')
+                self.assertEqual(raised.exception.category, category)
+                self.assertEqual(raised.exception.depth, 1025)
+                self.assertEqual(raised.exception.max_depth, 1024)
+                self.assertNotIsInstance(raised.exception, stage.ModelParseError)
+        self.assertEqual(len(calls), 2)
+        self.assertIsInstance(stage.parse_model_json('x'), dict)
+
 if __name__ == '__main__': unittest.main()

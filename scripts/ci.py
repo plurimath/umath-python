@@ -122,6 +122,8 @@ def build_native():
 
 def install_wheel(runtime_installed):
     if not runtime_installed:
+        if CONFIG["python_runtime"].get("public_source_available") is False:
+            raise RuntimeError("explicit-context runtime source is not public yet; co-install the exact approved local candidate and use --runtime-installed")
         repository, revision = source_pin(CONFIG["python_runtime"])
         run([sys.executable, "-m", "pip", "install", "--disable-pip-version-check",
              f"parsanol @ git+https://github.com/{repository}.git@{revision}"], "runtime-install")

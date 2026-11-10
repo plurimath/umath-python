@@ -91,3 +91,19 @@ architecture, not a universal claim. Native source pins, binary hashes, and
 license notices are shipped under `_native/`. The installed-wheel runner
 clears both library overrides and verifies both APIs still work without
 changing Parsanol's default native singleton.
+
+`parse_legacy_raw(source, decimal=".")` exposes the explicit legacy stage policy;
+existing `parse_raw`, `parse_grammar` and model JSON APIs retain native strict
+behavior. Tree slices refer to preprocessed text; public error offsets refer to
+the original caller input, with `grammar_byte_offset` separately available.
+UnicodeMath explicitly selects Parslet execution.
+
+The new policy ABI requires the unreleased Parsanol Python/core candidates.
+Their exact local wheel/source receipts are required for local testing until
+the Python dependency has an approved public source location. This branch does
+not claim that the new dependency is released or publicly resolvable.
+
+Native parser budget aborts remain distinct: raw compatibility calls raise
+`parsanol.NativeResourceError`; model JSON calls raise `ModelResourceError`
+with the native category and depth fields. Codec `model_error` refusals remain
+`ModelParseError`; they are not classified from message text.

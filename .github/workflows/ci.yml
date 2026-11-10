@@ -9,6 +9,8 @@ permissions:
 concurrency:
   group: python-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+env:
+  PLURIMATH_FULL_RAW_CORPUS: "1"
 jobs:
   native:
     name: Native stage (${{ matrix.os }})

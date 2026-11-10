@@ -20,6 +20,15 @@ class ModelParseError(ValueError):
         self.error = error
         super().__init__(str(error.get("message", "canonical model parse rejected")))
 
+class ModelResourceError(RuntimeError):
+    """A typed native parser budget abort, distinct from syntax rejection."""
+    def __init__(self, error):
+        self.error = error
+        self.category = error["category"]
+        self.depth = error.get("depth")
+        self.max_depth = error.get("max_depth")
+        super().__init__(str(error.get("message", self.category)))
+
 @lru_cache(maxsize=4)
 def _load(path):
     target = Path(path)
@@ -69,6 +78,8 @@ def parse_model_json(source: str, *, decimal: str = ".") -> dict:
     if not isinstance(result, dict) or result.get("abi_version") != 1:
         raise ModelRuntimeUnavailable("invalid canonical umath ABI result envelope")
     if result.get("ok") is False and isinstance(result.get("error"), dict):
+        if result["error"].get("category") in ("recursion_limit", "call_depth_limit"):
+            raise ModelResourceError(result["error"])
         raise ModelParseError(result["error"])
     if result.get("ok") is not True or not isinstance(result.get("model"), dict):
         raise ModelRuntimeUnavailable("invalid canonical umath model payload")
