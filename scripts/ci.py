@@ -61,6 +61,18 @@ def library_name():
     return "lib" + STAGE + (".dylib" if sys.platform == "darwin" else ".so")
 
 
+def macos_deployment_target(release):
+    """The deployment target, and so the wheel tag, for a macOS release.
+
+    From macOS 11 the wheel tag's minor version is always 0 (pip only
+    accepts macosx_<major>_0 there), so build for <major>.0 to keep the
+    binary's minimum OS and its tag in agreement.
+    """
+    parts = [int(part) for part in release.split(".")[:2]] + [0]
+    major, minor = parts[0], parts[1]
+    return f"{major}.0" if major >= 11 else f"{major}.{minor}"
+
+
 def build_native():
     repository, revision = source_pin(CONFIG)
     source = ROOT / ".native-source"
@@ -75,7 +87,7 @@ def build_native():
         raise RuntimeError("native checkout does not match the pinned task commit")
     environment = os.environ.copy()
     if sys.platform == "darwin":
-        deployment = ".".join(platform.mac_ver()[0].split(".")[:2])
+        deployment = macos_deployment_target(platform.mac_ver()[0])
         environment["MACOSX_DEPLOYMENT_TARGET"] = deployment
     else:
         deployment = None
