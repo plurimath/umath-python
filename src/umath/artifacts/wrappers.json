@@ -1,0 +1,21 @@
+{
+  "format": "umath-wrappers/1",
+  "wrappers": {
+    "empty": "empty",
+    "list": "list",
+    "literal": "text",
+    "literal_2": "text",
+    "present": "nil",
+    "spelling": "text"
+  },
+  "rules": {
+    "N1 text alternative": 1588,
+    "N2 empty alternative": 4,
+    "N3 list in node slot": 5,
+    "N4 list slot": 1,
+    "N5 text sibling": 2,
+    "N6 forced rule": 14,
+    "N7 presence capture": 5,
+    "N8 symbol spelling": 1263
+  }
+}

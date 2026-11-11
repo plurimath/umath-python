@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68", "wheel>=0.45"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "plurimath-umath"
+version = "0.1.0"
+description = "Shared PARG raw syntax runtime for umath"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["parsanol @ git+https://github.com/parsanol/parsanol-python.git@7bb1e554ec29dcd82ee7a2c467bc46309170ceeb"]
+license = {text = "BSD-2-Clause"}
+
+[tool.setuptools]
+license-files = ["LICENSE", "licenses/*"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+umath = ["artifacts/*.json"]

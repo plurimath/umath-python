@@ -1,0 +1,37 @@
+{
+  "language": "unicode",
+  "generation": 4,
+  "source_corpus_commit": "0d50db714d75e3883a507fbc47022eb547fb027f",
+  "provenance_sha256": "61a4bd545cfff46dee3df2cf4ca1299c7658bf228dd183dd1b7a43abd3ceec91",
+  "snapshot_digest": "sha256:cc02870fb6ee5a46c64271733b716f00469d0af46847851ad3db9249ad2571ed",
+  "payloads": [
+    {
+      "path": "payloads/raw-fences.yaml",
+      "sha256": "bbd957bca74cb024c65306ffa3ab3814fd66e74556aff2863d80b8a167cbf7e6",
+      "bytes": 4461
+    },
+    {
+      "path": "payloads/raw-numbers.yaml",
+      "sha256": "5ec2ab14150bce3f54b2a290f516b77ffca21cc0d2a4b76f02d2a988bb250f67",
+      "bytes": 3857
+    },
+    {
+      "path": "payloads/raw-operators.yaml",
+      "sha256": "878d21c51bca45b14b5f05972f0001221acbbdde96429bfb86d09750c43979af",
+      "bytes": 5861
+    },
+    {
+      "path": "payloads/raw-rejections.yaml",
+      "sha256": "e5f7d306132ad2d7aa9a4aa68f5751d02c90289bd3e0b8cb6c8c50c5e1229a26",
+      "bytes": 8839
+    },
+    {
+      "path": "payloads/raw-symbols.yaml",
+      "sha256": "5cba1e063d7e85a696ce6ded3597ae961dccd34c0482b8d49cf21d6bbbd3fe78",
+      "bytes": 1792
+    }
+  ],
+  "fixture_sha256": "82c37b90c0cc0e908f5a43c2742e35e22b93bf0c8efe80f21ccf6041f10d5d8b",
+  "row_count": 72,
+  "source_gates": "payload byte sizes/SHA256 and frozen provenance SHA verified by extract-vectors.mjs; cases copied without expected-value changes"
+}

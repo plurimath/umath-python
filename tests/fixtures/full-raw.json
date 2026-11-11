@@ -1,0 +1,2493 @@
+{
+  "language": "unicode",
+  "generation": 4,
+  "source_corpus_commit": "0d50db714d75e3883a507fbc47022eb547fb027f",
+  "provenance_sha256": "61a4bd545cfff46dee3df2cf4ca1299c7658bf228dd183dd1b7a43abd3ceec91",
+  "snapshot_digest": "sha256:cc02870fb6ee5a46c64271733b716f00469d0af46847851ad3db9249ad2571ed",
+  "payloads": [
+    {
+      "path": "payloads/raw-fences.yaml",
+      "sha256": "bbd957bca74cb024c65306ffa3ab3814fd66e74556aff2863d80b8a167cbf7e6",
+      "bytes": 4461
+    },
+    {
+      "path": "payloads/raw-numbers.yaml",
+      "sha256": "5ec2ab14150bce3f54b2a290f516b77ffca21cc0d2a4b76f02d2a988bb250f67",
+      "bytes": 3857
+    },
+    {
+      "path": "payloads/raw-operators.yaml",
+      "sha256": "878d21c51bca45b14b5f05972f0001221acbbdde96429bfb86d09750c43979af",
+      "bytes": 5861
+    },
+    {
+      "path": "payloads/raw-rejections.yaml",
+      "sha256": "e5f7d306132ad2d7aa9a4aa68f5751d02c90289bd3e0b8cb6c8c50c5e1229a26",
+      "bytes": 8839
+    },
+    {
+      "path": "payloads/raw-symbols.yaml",
+      "sha256": "5cba1e063d7e85a696ce6ded3597ae961dccd34c0482b8d49cf21d6bbbd3fe78",
+      "bytes": 1792
+    }
+  ],
+  "cases": [
+    {
+      "id": "unicode-fence-round.raw",
+      "input": {
+        "str": "(a)"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "(a)"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "factor"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "intermediate_exp"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "open_paren"
+                          },
+                          {
+                            "slice": "(",
+                            "byte_offset": 0,
+                            "char_offset": 0
+                          }
+                        ],
+                        [
+                          {
+                            "sym": "factor"
+                          },
+                          {
+                            "hash": [
+                              [
+                                {
+                                  "sym": "atom"
+                                },
+                                {
+                                  "hash": [
+                                    [
+                                      {
+                                        "sym": "alphanumeric"
+                                      },
+                                      {
+                                        "slice": "a",
+                                        "byte_offset": 1,
+                                        "char_offset": 1
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ],
+                        [
+                          {
+                            "sym": "close_paren"
+                          },
+                          {
+                            "slice": ")",
+                            "byte_offset": 2,
+                            "char_offset": 2
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-fences.yaml"
+    },
+    {
+      "id": "unicode-fence-square.raw",
+      "input": {
+        "str": "[a]"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "[a]"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "factor"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "intermediate_exp"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "open_paren"
+                          },
+                          {
+                            "slice": "[",
+                            "byte_offset": 0,
+                            "char_offset": 0
+                          }
+                        ],
+                        [
+                          {
+                            "sym": "factor"
+                          },
+                          {
+                            "hash": [
+                              [
+                                {
+                                  "sym": "atom"
+                                },
+                                {
+                                  "hash": [
+                                    [
+                                      {
+                                        "sym": "alphanumeric"
+                                      },
+                                      {
+                                        "slice": "a",
+                                        "byte_offset": 1,
+                                        "char_offset": 1
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ],
+                        [
+                          {
+                            "sym": "close_paren"
+                          },
+                          {
+                            "slice": "]",
+                            "byte_offset": 2,
+                            "char_offset": 2
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-fences.yaml"
+    },
+    {
+      "id": "unicode-fence-curly.raw",
+      "input": {
+        "str": "{a}"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "{a}"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "factor"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "intermediate_exp"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "open_paren"
+                          },
+                          {
+                            "slice": "{",
+                            "byte_offset": 0,
+                            "char_offset": 0
+                          }
+                        ],
+                        [
+                          {
+                            "sym": "factor"
+                          },
+                          {
+                            "hash": [
+                              [
+                                {
+                                  "sym": "atom"
+                                },
+                                {
+                                  "hash": [
+                                    [
+                                      {
+                                        "sym": "alphanumeric"
+                                      },
+                                      {
+                                        "slice": "a",
+                                        "byte_offset": 1,
+                                        "char_offset": 1
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ],
+                        [
+                          {
+                            "sym": "close_paren"
+                          },
+                          {
+                            "slice": "}",
+                            "byte_offset": 2,
+                            "char_offset": 2
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-fences.yaml"
+    },
+    {
+      "id": "unicode-fence-angle.raw",
+      "input": {
+        "str": "⟨a⟩"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "&#x27e8;a&#x27e9;"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "factor"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "intermediate_exp"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "open_paren"
+                          },
+                          {
+                            "slice": "&#x27e8;",
+                            "byte_offset": 0,
+                            "char_offset": 0
+                          }
+                        ],
+                        [
+                          {
+                            "sym": "factor"
+                          },
+                          {
+                            "hash": [
+                              [
+                                {
+                                  "sym": "atom"
+                                },
+                                {
+                                  "hash": [
+                                    [
+                                      {
+                                        "sym": "alphanumeric"
+                                      },
+                                      {
+                                        "slice": "a",
+                                        "byte_offset": 8,
+                                        "char_offset": 8
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ],
+                        [
+                          {
+                            "sym": "close_paren"
+                          },
+                          {
+                            "slice": "&#x27e9;",
+                            "byte_offset": 9,
+                            "char_offset": 9
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-fences.yaml"
+    },
+    {
+      "id": "unicode-fence-ceiling.raw",
+      "input": {
+        "str": "⌈a⌉"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "&#x2308;a&#x2309;"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "factor"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "intermediate_exp"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "open_paren"
+                          },
+                          {
+                            "slice": "&#x2308;",
+                            "byte_offset": 0,
+                            "char_offset": 0
+                          }
+                        ],
+                        [
+                          {
+                            "sym": "factor"
+                          },
+                          {
+                            "hash": [
+                              [
+                                {
+                                  "sym": "atom"
+                                },
+                                {
+                                  "hash": [
+                                    [
+                                      {
+                                        "sym": "alphanumeric"
+                                      },
+                                      {
+                                        "slice": "a",
+                                        "byte_offset": 8,
+                                        "char_offset": 8
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ],
+                        [
+                          {
+                            "sym": "close_paren"
+                          },
+                          {
+                            "slice": "&#x2309;",
+                            "byte_offset": 9,
+                            "char_offset": 9
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-fences.yaml"
+    },
+    {
+      "id": "unicode-number-integer.raw",
+      "input": {
+        "str": "1"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "1"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "factor"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "digit"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "number"
+                          },
+                          {
+                            "slice": "1",
+                            "byte_offset": 0,
+                            "char_offset": 0
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-numbers.yaml"
+    },
+    {
+      "id": "unicode-number-decimal.raw",
+      "input": {
+        "str": "3.14"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "3.14"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "factor"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "decimal_number"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "whole"
+                          },
+                          {
+                            "hash": [
+                              [
+                                {
+                                  "sym": "number"
+                                },
+                                {
+                                  "slice": "3",
+                                  "byte_offset": 0,
+                                  "char_offset": 0
+                                }
+                              ]
+                            ]
+                          }
+                        ],
+                        [
+                          {
+                            "sym": "decimal"
+                          },
+                          {
+                            "slice": ".",
+                            "byte_offset": 1,
+                            "char_offset": 1
+                          }
+                        ],
+                        [
+                          {
+                            "sym": "fractional"
+                          },
+                          {
+                            "hash": [
+                              [
+                                {
+                                  "sym": "number"
+                                },
+                                {
+                                  "slice": "14",
+                                  "byte_offset": 2,
+                                  "char_offset": 2
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-numbers.yaml"
+    },
+    {
+      "id": "unicode-number-decimal-comma.raw",
+      "input": {
+        "str": "1,5"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "1,5"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "factor"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "decimal_number"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "whole"
+                          },
+                          {
+                            "hash": [
+                              [
+                                {
+                                  "sym": "number"
+                                },
+                                {
+                                  "slice": "1",
+                                  "byte_offset": 0,
+                                  "char_offset": 0
+                                }
+                              ]
+                            ]
+                          }
+                        ],
+                        [
+                          {
+                            "sym": "decimal"
+                          },
+                          {
+                            "slice": ",",
+                            "byte_offset": 1,
+                            "char_offset": 1
+                          }
+                        ],
+                        [
+                          {
+                            "sym": "fractional"
+                          },
+                          {
+                            "hash": [
+                              [
+                                {
+                                  "sym": "number"
+                                },
+                                {
+                                  "slice": "5",
+                                  "byte_offset": 2,
+                                  "char_offset": 2
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-numbers.yaml"
+    },
+    {
+      "id": "unicode-number-negative.raw",
+      "input": {
+        "str": "-42"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "-42"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "operator"
+              },
+              {
+                "slice": "-",
+                "byte_offset": 0,
+                "char_offset": 0
+              }
+            ],
+            [
+              {
+                "sym": "expr"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "factor"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "digit"
+                          },
+                          {
+                            "hash": [
+                              [
+                                {
+                                  "sym": "number"
+                                },
+                                {
+                                  "slice": "42",
+                                  "byte_offset": 1,
+                                  "char_offset": 1
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-numbers.yaml"
+    },
+    {
+      "id": "unicode-number-exponent.raw",
+      "input": {
+        "str": "2^10"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "2^10"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "sup_exp"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "base"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "digit"
+                          },
+                          {
+                            "hash": [
+                              [
+                                {
+                                  "sym": "number"
+                                },
+                                {
+                                  "slice": "2",
+                                  "byte_offset": 0,
+                                  "char_offset": 0
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ],
+                  [
+                    {
+                      "sym": "sup"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "sup_script"
+                          },
+                          {
+                            "hash": [
+                              [
+                                {
+                                  "sym": "operand"
+                                },
+                                {
+                                  "hash": [
+                                    [
+                                      {
+                                        "sym": "factor"
+                                      },
+                                      {
+                                        "hash": [
+                                          [
+                                            {
+                                              "sym": "digit"
+                                            },
+                                            {
+                                              "hash": [
+                                                [
+                                                  {
+                                                    "sym": "number"
+                                                  },
+                                                  {
+                                                    "slice": "10",
+                                                    "byte_offset": 2,
+                                                    "char_offset": 2
+                                                  }
+                                                ]
+                                              ]
+                                            }
+                                          ]
+                                        ]
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-numbers.yaml"
+    },
+    {
+      "id": "unicode-operator-plus.raw",
+      "input": {
+        "str": "a+b"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "a+b"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "factor"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "atom"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "alphanumeric"
+                          },
+                          {
+                            "slice": "a",
+                            "byte_offset": 0,
+                            "char_offset": 0
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ],
+            [
+              {
+                "sym": "expr"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "operator"
+                    },
+                    {
+                      "slice": "+",
+                      "byte_offset": 1,
+                      "char_offset": 1
+                    }
+                  ],
+                  [
+                    {
+                      "sym": "expr"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "factor"
+                          },
+                          {
+                            "hash": [
+                              [
+                                {
+                                  "sym": "atom"
+                                },
+                                {
+                                  "hash": [
+                                    [
+                                      {
+                                        "sym": "alphanumeric"
+                                      },
+                                      {
+                                        "slice": "b",
+                                        "byte_offset": 2,
+                                        "char_offset": 2
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-operators.yaml"
+    },
+    {
+      "id": "unicode-operator-times.raw",
+      "input": {
+        "str": "a×b"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "a&#xd7;b"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "factor"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "atom"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "alphanumeric"
+                          },
+                          {
+                            "slice": "a",
+                            "byte_offset": 0,
+                            "char_offset": 0
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ],
+            [
+              {
+                "sym": "expr"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "binary_symbols"
+                    },
+                    {
+                      "slice": "&#xd7;",
+                      "byte_offset": 1,
+                      "char_offset": 1
+                    }
+                  ],
+                  [
+                    {
+                      "sym": "expr"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "factor"
+                          },
+                          {
+                            "hash": [
+                              [
+                                {
+                                  "sym": "atom"
+                                },
+                                {
+                                  "hash": [
+                                    [
+                                      {
+                                        "sym": "alphanumeric"
+                                      },
+                                      {
+                                        "slice": "b",
+                                        "byte_offset": 7,
+                                        "char_offset": 7
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-operators.yaml"
+    },
+    {
+      "id": "unicode-operator-leq.raw",
+      "input": {
+        "str": "a≤b"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "a&#x2264;b"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "factor"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "atom"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "alphanumeric"
+                          },
+                          {
+                            "slice": "a",
+                            "byte_offset": 0,
+                            "char_offset": 0
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ],
+            [
+              {
+                "sym": "operand"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "factor"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "relational_symbols"
+                          },
+                          {
+                            "slice": "&#x2264;",
+                            "byte_offset": 1,
+                            "char_offset": 1
+                          }
+                        ]
+                      ]
+                    }
+                  ],
+                  [
+                    {
+                      "sym": "operand"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "factor"
+                          },
+                          {
+                            "hash": [
+                              [
+                                {
+                                  "sym": "atom"
+                                },
+                                {
+                                  "hash": [
+                                    [
+                                      {
+                                        "sym": "alphanumeric"
+                                      },
+                                      {
+                                        "slice": "b",
+                                        "byte_offset": 9,
+                                        "char_offset": 9
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-operators.yaml"
+    },
+    {
+      "id": "unicode-operator-equiv.raw",
+      "input": {
+        "str": "a≡b"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "a&#x2261;b"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "factor"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "atom"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "alphanumeric"
+                          },
+                          {
+                            "slice": "a",
+                            "byte_offset": 0,
+                            "char_offset": 0
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ],
+            [
+              {
+                "sym": "operand"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "factor"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "relational_symbols"
+                          },
+                          {
+                            "slice": "&#x2261;",
+                            "byte_offset": 1,
+                            "char_offset": 1
+                          }
+                        ]
+                      ]
+                    }
+                  ],
+                  [
+                    {
+                      "sym": "operand"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "factor"
+                          },
+                          {
+                            "hash": [
+                              [
+                                {
+                                  "sym": "atom"
+                                },
+                                {
+                                  "hash": [
+                                    [
+                                      {
+                                        "sym": "alphanumeric"
+                                      },
+                                      {
+                                        "slice": "b",
+                                        "byte_offset": 9,
+                                        "char_offset": 9
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-operators.yaml"
+    },
+    {
+      "id": "unicode-operator-plus-minus.raw",
+      "input": {
+        "str": "a±b"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "a&#xb1;b"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "factor"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "atom"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "alphanumeric"
+                          },
+                          {
+                            "slice": "a",
+                            "byte_offset": 0,
+                            "char_offset": 0
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ],
+            [
+              {
+                "sym": "operand"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "factor"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "combined_symbols"
+                          },
+                          {
+                            "slice": "&#xb1;",
+                            "byte_offset": 1,
+                            "char_offset": 1
+                          }
+                        ]
+                      ]
+                    }
+                  ],
+                  [
+                    {
+                      "sym": "operand"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "factor"
+                          },
+                          {
+                            "hash": [
+                              [
+                                {
+                                  "sym": "atom"
+                                },
+                                {
+                                  "hash": [
+                                    [
+                                      {
+                                        "sym": "alphanumeric"
+                                      },
+                                      {
+                                        "slice": "b",
+                                        "byte_offset": 7,
+                                        "char_offset": 7
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-operators.yaml"
+    },
+    {
+      "id": "unicode-operator-minus-plus.raw",
+      "input": {
+        "str": "a∓b"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "a&#x2213;b"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "factor"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "atom"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "alphanumeric"
+                          },
+                          {
+                            "slice": "a",
+                            "byte_offset": 0,
+                            "char_offset": 0
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ],
+            [
+              {
+                "sym": "operand"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "factor"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "combined_symbols"
+                          },
+                          {
+                            "slice": "&#x2213;",
+                            "byte_offset": 1,
+                            "char_offset": 1
+                          }
+                        ]
+                      ]
+                    }
+                  ],
+                  [
+                    {
+                      "sym": "operand"
+                    },
+                    {
+                      "hash": [
+                        [
+                          {
+                            "sym": "factor"
+                          },
+                          {
+                            "hash": [
+                              [
+                                {
+                                  "sym": "atom"
+                                },
+                                {
+                                  "hash": [
+                                    [
+                                      {
+                                        "sym": "alphanumeric"
+                                      },
+                                      {
+                                        "slice": "b",
+                                        "byte_offset": 9,
+                                        "char_offset": 9
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-operators.yaml"
+    },
+    {
+      "id": "unicode-unclosed-paren.raw",
+      "input": {
+        "str": "(a"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 2
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-stray-close-paren.raw",
+      "input": {
+        "str": "a)"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 1
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-lone-close-paren.raw",
+      "input": {
+        "str": ")"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 0
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-close-paren-mid.raw",
+      "input": {
+        "str": "a)b"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 1
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-unclosed-paren-after-operator.raw",
+      "input": {
+        "str": "a+(b"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 4
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-close-paren-after-operator.raw",
+      "input": {
+        "str": "a+)"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 2
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-unclosed-square.raw",
+      "input": {
+        "str": "[a"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 2
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-stray-close-square.raw",
+      "input": {
+        "str": "a]"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 2
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-unclosed-curly.raw",
+      "input": {
+        "str": "{a"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 2
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-stray-close-curly.raw",
+      "input": {
+        "str": "a}"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 1
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-unclosed-angle.raw",
+      "input": {
+        "str": "⟨a"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 9
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-stray-close-angle.raw",
+      "input": {
+        "str": "a⟩"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 2
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-unclosed-ceiling.raw",
+      "input": {
+        "str": "⌈a"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 9
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-stray-close-ceiling.raw",
+      "input": {
+        "str": "a⌉"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 2
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-unclosed-vert.raw",
+      "input": {
+        "str": "|a"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 2
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-greek-stray-close-paren.raw",
+      "input": {
+        "str": "α)"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 7
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-greek-unclosed-paren.raw",
+      "input": {
+        "str": "(α"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 8
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-lone-sup.raw",
+      "input": {
+        "str": "^"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 1
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-trailing-sup.raw",
+      "input": {
+        "str": "a^"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 2
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-greek-trailing-sup.raw",
+      "input": {
+        "str": "α^"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 8
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-lone-sub.raw",
+      "input": {
+        "str": "_"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 1
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-trailing-sub.raw",
+      "input": {
+        "str": "a_"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 2
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-infinity-trailing-sub.raw",
+      "input": {
+        "str": "∞_"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 9
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-doubled-sup.raw",
+      "input": {
+        "str": "a^^b"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 2
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-doubled-sub.raw",
+      "input": {
+        "str": "a__b"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 2
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-sub-then-sup.raw",
+      "input": {
+        "str": "a_^b"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 2
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-lone-slash.raw",
+      "input": {
+        "str": "/"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 1
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-trailing-slash.raw",
+      "input": {
+        "str": "a/"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 2
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-number-trailing-slash.raw",
+      "input": {
+        "str": "1/"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 2
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-leading-slash.raw",
+      "input": {
+        "str": "/2"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 1
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-greek-trailing-slash.raw",
+      "input": {
+        "str": "α/"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 8
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-double-trailing-slash.raw",
+      "input": {
+        "str": "a/b/"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 4
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-lone-ampersand.raw",
+      "input": {
+        "str": "&"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 1
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-ampersand-operator.raw",
+      "input": {
+        "str": "a&b"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 2
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-greek-ampersand.raw",
+      "input": {
+        "str": "α&b"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 8
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-unclosed-quote.raw",
+      "input": {
+        "str": "\"abc"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 4
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-greek-unclosed-quote.raw",
+      "input": {
+        "str": "\"αbc"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 10
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-matrix-unclosed.raw",
+      "input": {
+        "str": "■(a&b"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 12
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-lone-at.raw",
+      "input": {
+        "str": "@"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 0
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-at-operator.raw",
+      "input": {
+        "str": "a@b"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 1
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-greek-at-operator.raw",
+      "input": {
+        "str": "α@b"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 7
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-lone-naryand.raw",
+      "input": {
+        "str": "▒"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 1
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-lone-right-tack.raw",
+      "input": {
+        "str": "┤"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 1
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-trailing-down-tack.raw",
+      "input": {
+        "str": "a┬"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 9
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-lone-broken-bar.raw",
+      "input": {
+        "str": "¦"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 1
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-trailing-broken-bar.raw",
+      "input": {
+        "str": "a¦"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 7
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-greek-broken-bar.raw",
+      "input": {
+        "str": "α¦"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 13
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-lone-function-apply.raw",
+      "input": {
+        "str": "⁡"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 8
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-trailing-function-apply.raw",
+      "input": {
+        "str": "a⁡"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 9
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-greek-function-apply.raw",
+      "input": {
+        "str": "α⁡"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 15
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-lone-parenthesized-letter.raw",
+      "input": {
+        "str": "⒜"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 8
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-whitespace-only.raw",
+      "input": {
+        "str": " "
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "refusal": {
+          "category": "parse_error",
+          "byte_offset": 0
+        }
+      },
+      "payload": "payloads/raw-rejections.yaml"
+    },
+    {
+      "id": "unicode-symbol-greek-alpha.raw",
+      "input": {
+        "str": "α"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "&#x3b1;"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "factor"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "ordinary_symbols"
+                    },
+                    {
+                      "slice": "&#x3b1;",
+                      "byte_offset": 0,
+                      "char_offset": 0
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-symbols.yaml"
+    },
+    {
+      "id": "unicode-symbol-greek-pi.raw",
+      "input": {
+        "str": "π"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "&#x3c0;"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "factor"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "ordinary_symbols"
+                    },
+                    {
+                      "slice": "&#x3c0;",
+                      "byte_offset": 0,
+                      "char_offset": 0
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-symbols.yaml"
+    },
+    {
+      "id": "unicode-symbol-infinity.raw",
+      "input": {
+        "str": "∞"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "&#x221e;"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "factor"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "ordinary_symbols"
+                    },
+                    {
+                      "slice": "&#x221e;",
+                      "byte_offset": 0,
+                      "char_offset": 0
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-symbols.yaml"
+    },
+    {
+      "id": "unicode-symbol-empty-set.raw",
+      "input": {
+        "str": "∅"
+      },
+      "options": {
+        "decimal": "."
+      },
+      "expected": {
+        "preprocessed": {
+          "str": "&#x2205;"
+        },
+        "tree": {
+          "hash": [
+            [
+              {
+                "sym": "factor"
+              },
+              {
+                "hash": [
+                  [
+                    {
+                      "sym": "ordinary_symbols"
+                    },
+                    {
+                      "slice": "&#x2205;",
+                      "byte_offset": 0,
+                      "char_offset": 0
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        }
+      },
+      "payload": "payloads/raw-symbols.yaml"
+    }
+  ]
+}

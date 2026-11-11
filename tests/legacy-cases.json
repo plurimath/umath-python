@@ -1,0 +1,59 @@
+{
+  "reference": "Ruby native raw producer; existing pinned fixture snapshots retained unchanged",
+  "oracle_snapshot_sha256": "a8532f3f9533b0473e2f30795a118d16a2f7e8ca1a9e80c449573a98caf8ef74",
+  "cases": [
+    {
+      "input": "α+β#eq1",
+      "tree": {
+        "factor": {
+          "ordinary_symbols": {
+            "offset": 0,
+            "length": 7,
+            "line": 1,
+            "column": 1,
+            "value": "&#x3b1;"
+          }
+        },
+        "expr": {
+          "operator": {
+            "offset": 7,
+            "length": 1,
+            "line": 1,
+            "column": 8,
+            "value": "+"
+          },
+          "expr": {
+            "factor": {
+              "atom": {
+                "char": {
+                  "unicode_symbols": {
+                    "offset": 8,
+                    "length": 7,
+                    "line": 1,
+                    "column": 9,
+                    "value": "&#x3b2;"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "ok": true
+    },
+    {
+      "input": "a)",
+      "ok": false,
+      "byte_offset": 1,
+      "grammar_byte_offset": 1,
+      "source_row": "unicode-stray-close-paren.raw"
+    },
+    {
+      "input": "⟨a",
+      "ok": false,
+      "byte_offset": 4,
+      "grammar_byte_offset": 9,
+      "source_row": "unicode-unclosed-angle.raw"
+    }
+  ]
+}

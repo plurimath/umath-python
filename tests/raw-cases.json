@@ -1,0 +1,269 @@
+[
+  {
+    "input": "",
+    "tree": null,
+    "ok": true
+  },
+  {
+    "input": "#",
+    "tree": null,
+    "ok": true
+  },
+  {
+    "input": "x+y",
+    "tree": {
+      "factor": {
+        "atom": {
+          "alphanumeric": {
+            "offset": 0,
+            "length": 1,
+            "line": 1,
+            "column": 1,
+            "value": "x"
+          }
+        }
+      },
+      "expr": {
+        "operator": {
+          "offset": 1,
+          "length": 1,
+          "line": 1,
+          "column": 2,
+          "value": "+"
+        },
+        "expr": {
+          "factor": {
+            "atom": {
+              "alphanumeric": {
+                "offset": 2,
+                "length": 1,
+                "line": 1,
+                "column": 3,
+                "value": "y"
+              }
+            }
+          }
+        }
+      }
+    },
+    "ok": true
+  },
+  {
+    "input": "α+β#eq1",
+    "tree": {
+      "factor": {
+        "ordinary_symbols": {
+          "offset": 0,
+          "length": 7,
+          "line": 1,
+          "column": 1,
+          "value": "&#x3b1;"
+        }
+      },
+      "expr": {
+        "operator": {
+          "offset": 7,
+          "length": 1,
+          "line": 1,
+          "column": 8,
+          "value": "+"
+        },
+        "expr": {
+          "factor": {
+            "atom": {
+              "char": {
+                "unicode_symbols": {
+                  "offset": 8,
+                  "length": 7,
+                  "line": 1,
+                  "column": 9,
+                  "value": "&#x3b2;"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "ok": true
+  },
+  {
+    "input": "x⫷skip⫸+y",
+    "tree": {
+      "factor": {
+        "atom": {
+          "alphanumeric": {
+            "offset": 0,
+            "length": 1,
+            "line": 1,
+            "column": 1,
+            "value": "x"
+          }
+        }
+      },
+      "expr": {
+        "operator": {
+          "offset": 1,
+          "length": 1,
+          "line": 1,
+          "column": 2,
+          "value": "+"
+        },
+        "expr": {
+          "factor": {
+            "atom": {
+              "alphanumeric": {
+                "offset": 2,
+                "length": 1,
+                "line": 1,
+                "column": 3,
+                "value": "y"
+              }
+            }
+          }
+        }
+      }
+    },
+    "ok": true
+  },
+  {
+    "input": "a)",
+    "ok": false,
+    "char_offset": 1,
+    "byte_offset": 1
+  },
+  {
+    "input": "α)",
+    "ok": false,
+    "char_offset": 1,
+    "byte_offset": 2
+  },
+  {
+    "input": "   α)#label",
+    "ok": false,
+    "char_offset": 4,
+    "byte_offset": 5
+  },
+  {
+    "input": "\\u03b1)",
+    "ok": false,
+    "char_offset": 6,
+    "byte_offset": 6
+  },
+  {
+    "input": "1,2+3",
+    "decimal": ",",
+    "tree": {
+      "factor": {
+        "decimal_number": {
+          "whole": {
+            "number": {
+              "offset": 0,
+              "length": 1,
+              "line": 1,
+              "column": 1,
+              "value": "1"
+            }
+          },
+          "decimal": {
+            "offset": 1,
+            "length": 1,
+            "line": 1,
+            "column": 2,
+            "value": ","
+          },
+          "fractional": {
+            "number": {
+              "offset": 2,
+              "length": 1,
+              "line": 1,
+              "column": 3,
+              "value": "2"
+            }
+          }
+        }
+      },
+      "expr": {
+        "operator": {
+          "offset": 3,
+          "length": 1,
+          "line": 1,
+          "column": 4,
+          "value": "+"
+        },
+        "expr": {
+          "factor": {
+            "digit": {
+              "number": {
+                "offset": 4,
+                "length": 1,
+                "line": 1,
+                "column": 5,
+                "value": "3"
+              }
+            }
+          }
+        }
+      }
+    },
+    "ok": true
+  },
+  {
+    "input": "1٫2+3",
+    "decimal": "٫",
+    "tree": {
+      "factor": {
+        "decimal_number": {
+          "whole": {
+            "number": {
+              "offset": 0,
+              "length": 1,
+              "line": 1,
+              "column": 1,
+              "value": "1"
+            }
+          },
+          "decimal": {
+            "offset": 1,
+            "length": 7,
+            "line": 1,
+            "column": 2,
+            "value": "&#x66b;"
+          },
+          "fractional": {
+            "number": {
+              "offset": 8,
+              "length": 1,
+              "line": 1,
+              "column": 9,
+              "value": "2"
+            }
+          }
+        }
+      },
+      "expr": {
+        "operator": {
+          "offset": 9,
+          "length": 1,
+          "line": 1,
+          "column": 10,
+          "value": "+"
+        },
+        "expr": {
+          "factor": {
+            "digit": {
+              "number": {
+                "offset": 10,
+                "length": 1,
+                "line": 1,
+                "column": 11,
+                "value": "3"
+              }
+            }
+          }
+        }
+      }
+    },
+    "ok": true
+  }
+]
