@@ -8,7 +8,8 @@ from parsanol import PargArtifact, BindingsArtifact, ParseFailed, ParsanolError
 from .preprocessor import preprocess
 from .legacy import legacy_tree
 from .errors import ParseError
-from .model_bridge import parse_model_json, ModelParseError, ModelRuntimeUnavailable
+from .native_library import raw_library_path
+from .model_bridge import parse_model_json, ModelParseError, ModelResourceError, ModelRuntimeUnavailable
 
 __version__ = "0.1.0"
 DECIMAL_ENTRIES = {".": "dot", ",": "comma", "٫": "arabic"}
@@ -40,7 +41,7 @@ class RawParseResult:
 @lru_cache(maxsize=1)
 def _artifacts():
     assets = files(__package__).joinpath("artifacts")
-    artifact = PargArtifact(assets.joinpath("umath.json").read_text(encoding="utf-8"))
+    artifact = PargArtifact(assets.joinpath("umath.json").read_text(encoding="utf-8"), library_path=raw_library_path())
     bindings = BindingsArtifact.from_json(assets.joinpath("umath.bindings.python.json").read_text(encoding="utf-8"), expected_target="python")
     return artifact, bindings
 
@@ -85,4 +86,25 @@ def parse_raw(source: str, *, decimal: str = ".") -> RawParseResult:
         raise ParseError(error, source, text) from error
     return RawParseResult(source, text, decimal, entry, result.shape, result.bindings, label, labeled)
 
-__all__ = ["parse_model_json", "ModelParseError", "ModelRuntimeUnavailable", "parse_raw", "parse_grammar", "artifact_info", "RawParseResult", "ParseFailed", "ParseError", "ParsanolError", "DECIMAL_ENTRIES"]
+def parse_legacy_raw(source: str, *, decimal: str = ".") -> RawParseResult:
+    """Explicit legacy stage policy with source-aware rejection offsets.
+
+    Existing parse_raw/parse_grammar remain native strict. Tree slice offsets
+    refer to preprocessed text; ParseError offsets refer to the caller input.
+    Requires a native engine exposing the explicit compatibility ABI.
+    """
+    entry = _validate(source, decimal)
+    text, label, labeled = preprocess(source)
+    if text is None:
+        return RawParseResult(source, None, decimal, entry, None, {}, label, labeled)
+    artifact, declared = _artifacts()
+    if not callable(getattr(artifact, "parse_with_compatibility", None)):
+        raise ParsanolError("legacy parsing requires a Parsanol Python runtime with explicit parsing compatibility")
+    try:
+        shape = artifact.parse_with_compatibility(text, entry, compatibility="parslet")
+    except ParseFailed as error:
+        raise ParseError(error, source, text) from error
+    bound = declared.apply(artifact.envelope, entry, shape)
+    return RawParseResult(source, text, decimal, entry, shape, bound, label, labeled)
+
+__all__ = ["parse_legacy_raw", "parse_model_json", "ModelParseError", "ModelResourceError", "ModelRuntimeUnavailable", "parse_raw", "parse_grammar", "artifact_info", "RawParseResult", "ParseFailed", "ParseError", "ParsanolError", "DECIMAL_ENTRIES"]

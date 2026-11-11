@@ -5,7 +5,6 @@ from pathlib import Path
 import unittest
 import umath as stage
 
-@unittest.skipUnless(os.environ.get("PARSANOL_CDYLIB"), "real Parsanol C ABI required")
 class RawBoundaryTests(unittest.TestCase):
     def test_pinned_raw_fixtures(self):
         rows = json.loads(Path(__file__).with_name("raw-cases.json").read_text(encoding="utf-8"))

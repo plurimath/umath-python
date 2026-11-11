@@ -9,6 +9,8 @@ permissions:
 concurrency:
   group: python-ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+env:
+  PLURIMATH_FULL_RAW_CORPUS: "1"
 jobs:
   native:
     name: Native stage (${{ matrix.os }})
@@ -78,4 +80,10 @@ jobs:
           include-hidden-files: true
           path: .ci-evidence/*
           if-no-files-found: warn
+          retention-days: 7
+      - uses: actions/upload-artifact@v4
+        with:
+          name: platform-wheel-${{ matrix.os }}-${{ matrix.python }}
+          path: dist/*-py3-none-*.whl
+          if-no-files-found: error
           retention-days: 7

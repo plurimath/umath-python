@@ -14,7 +14,6 @@ import umath as stage
 bridge = importlib.import_module('umath.model_bridge')
 ENV = 'UMATH_MODEL_CDYLIB'
 
-@unittest.skipUnless(os.environ.get(ENV), 'real canonical stage library required')
 class ModelBridgeTests(unittest.TestCase):
     def test_native_models(self):
         rows = json.loads(Path(__file__).with_name('model-cases.json').read_text(encoding="utf-8"))
@@ -37,14 +36,15 @@ class ModelBridgeTests(unittest.TestCase):
 
     def test_missing_and_relative_library(self):
         with patch.dict(os.environ, {ENV:''}):
-            with self.assertRaises(stage.ModelRuntimeUnavailable): stage.parse_model_json('x')
+            with patch.object(bridge, 'packaged_library_path', return_value=None):
+                with self.assertRaises(stage.ModelRuntimeUnavailable): stage.parse_model_json('x')
         with patch.dict(os.environ, {ENV:'relative-library.so'}):
             with self.assertRaises(stage.ModelRuntimeUnavailable): stage.parse_model_json('x')
         with patch.dict(os.environ, {ENV:str(Path(__file__).resolve().with_name('missing-canonical-stage-library'))}):
             with self.assertRaises(stage.ModelRuntimeUnavailable): stage.parse_model_json('x')
 
     def test_actual_version_and_unsupported_version_guard(self):
-        library = bridge._load(os.environ[ENV])
+        library = bridge._load(bridge._library_path())
         version = getattr(library, 'umath_abi_version')
         self.assertEqual(version(), 1)
         # Exercise the compatibility guard with the actual loaded CDLL.
@@ -52,10 +52,10 @@ class ModelBridgeTests(unittest.TestCase):
         with patch.object(library, 'umath_abi_version', lambda: 2):
             with patch.object(bridge.ctypes, 'CDLL', return_value=library):
                 with self.assertRaises(stage.ModelRuntimeUnavailable):
-                    bridge._load(os.environ[ENV] + '.unsupported-version-probe')
+                    bridge._load(bridge._library_path() + '.unsupported-version-probe')
 
     def test_owned_native_result_freed_once_on_success_and_decode_failure(self):
-        library = bridge._load(os.environ[ENV])
+        library = bridge._load(bridge._library_path())
         free = getattr(library, 'umath_free_json_v1')
         calls = []
         def release(pointer):
@@ -70,5 +70,29 @@ class ModelBridgeTests(unittest.TestCase):
                 with self.assertRaises(stage.ModelRuntimeUnavailable): stage.parse_model_json('x')
             self.assertEqual(len(calls), 2)
         self.assertTrue(all(calls))
+
+    def test_resource_envelope_is_distinct_and_owned_result_is_released(self):
+        library = bridge._load(bridge._library_path())
+        free = getattr(library, 'umath_free_json_v1')
+        calls = []
+        def release(pointer):
+            calls.append(pointer.value)
+            free(pointer)
+        # Allocate/free through the real native ABI. Substitute only the read
+        # to qualify Python handling of both documented resource categories.
+        with patch.object(library, 'umath_free_json_v1', release):
+            for category in ['recursion_limit', 'call_depth_limit']:
+                envelope = {'abi_version':1, 'ok':False, 'error':{
+                    'category':category, 'depth':1025, 'max_depth':1024,
+                    'byte_offset':None}}
+                with patch.object(bridge.ctypes, 'string_at', return_value=json.dumps(envelope).encode()):
+                    with self.assertRaises(stage.ModelResourceError) as raised:
+                        stage.parse_model_json('x')
+                self.assertEqual(raised.exception.category, category)
+                self.assertEqual(raised.exception.depth, 1025)
+                self.assertEqual(raised.exception.max_depth, 1024)
+                self.assertNotIsInstance(raised.exception, stage.ModelParseError)
+        self.assertEqual(len(calls), 2)
+        self.assertIsInstance(stage.parse_model_json('x'), dict)
 
 if __name__ == '__main__': unittest.main()
