@@ -1,11 +1,13 @@
 {
   "stage": "umath",
   "repository": "plurimath/umath-rs",
-  "revision": "504c74f6a3b8e4bc62cb650029f4d00cbf2438f3",
+  "revision": "b071b67d8d2202909e97c1b860de5359dab0f09d",
   "rust_toolchain": "1.95.0",
   "python_runtime": {
     "repository": "parsanol/parsanol-python",
     "revision": "7bb1e554ec29dcd82ee7a2c467bc46309170ceeb",
     "public_source_available": true
-  }
+  },
+  "cargo_lock_sha256": "8e50ed85a0a78d27d88c7f7a16cb25f1f2830c8310a013112a92fee0f9a0e35e",
+  "parsanol_sdk_revision": "5206a33b5417b4ecd3a601930461ed2967c871e7"
 }

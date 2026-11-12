@@ -5,6 +5,7 @@ cdylib supplies both model ABI v1 and the Parsanol C ABI on each platform.
 """
 from __future__ import annotations
 import argparse
+import ctypes
 import hashlib
 import importlib
 import importlib.metadata
@@ -73,6 +74,55 @@ def macos_deployment_target(release):
     return f"{major}.0" if major >= 11 else f"{major}.{minor}"
 
 
+def collect_notices(metadata, source, revision, licenses):
+    """Preserve actual crate and Git-workspace texts, with distinct Cargo identities."""
+    notices = []
+    for package in metadata["packages"]:
+        directory = Path(package["manifest_path"]).resolve().parent
+        roots = [("", directory)]
+        package_source = package.get("source")
+        source_revision = None
+        if package_source is None:
+            if not directory.is_relative_to(source.resolve()):
+                raise RuntimeError("unadmitted local native dependency")
+            roots.append(("repository-", source.resolve()))
+            source_revision = revision
+        elif package_source.startswith("git+"):
+            repository = Path(subprocess.check_output(["git", "rev-parse", "--show-toplevel"], cwd=directory, text=True).strip())
+            source_revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repository, text=True).strip()
+            if not package_source.endswith("#" + source_revision):
+                raise RuntimeError("Git notice source differs from its locked commit")
+            roots.append(("repository-", repository))
+        files = {}
+        for prefix, path in roots:
+            for candidate in path.iterdir():
+                if candidate.is_file() and candidate.name.lower().startswith(("license", "copying", "notice")):
+                    files.setdefault(prefix + candidate.name, candidate.read_bytes())
+        if package.get("license_file"):
+            path = directory / package["license_file"]
+            files[path.name] = path.read_bytes()
+        spdx_only = not files
+        if spdx_only:
+            if not package.get("license"):
+                raise RuntimeError("native dependency supplies neither license text nor SPDX metadata")
+            files["Cargo.toml"] = (directory / "Cargo.toml").read_bytes()
+            files["SOURCE-LICENSE.json"] = (json.dumps({"license":package["license"], "source":package_source,
+                "source_revision":source_revision, "notice":"Upstream supplies SPDX metadata without standalone text; none synthesized."}, indent=2) + "\n").encode()
+        identity = package["id"]
+        name = package["name"] + "-" + package["version"] + "-" + hashlib.sha256(identity.encode()).hexdigest()[:12]
+        folder = licenses / name
+        folder.mkdir()
+        copied = {}
+        for filename, data in sorted(files.items()):
+            (folder / filename).write_bytes(data)
+            copied[filename] = hashlib.sha256(data).hexdigest()
+        notices.append({"package":package["name"], "version":package["version"], "cargo_id":identity,
+                        "source":package_source, "source_revision":source_revision, "directory":name,
+                        "license":package.get("license"), "spdx_only":spdx_only, "notice_files":copied})
+    (licenses / "manifest.json").write_text(json.dumps(notices, indent=2) + "\n", encoding="utf-8")
+    return notices
+
+
 def build_native():
     repository, revision = source_pin(CONFIG)
     source = ROOT / ".native-source"
@@ -85,7 +135,11 @@ def build_native():
     actual = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=source, text=True).strip()
     if actual != revision:
         raise RuntimeError("native checkout does not match the pinned task commit")
+    lock_sha = digest(source / "Cargo.lock")
+    if CONFIG.get("cargo_lock_sha256") and lock_sha != CONFIG["cargo_lock_sha256"]:
+        raise RuntimeError("native Cargo.lock differs from the admitted source seal")
     environment = os.environ.copy()
+    environment["CARGO_BUILD_JOBS"] = "1"
     if sys.platform == "darwin":
         deployment = macos_deployment_target(platform.mac_ver()[0])
         environment["MACOSX_DEPLOYMENT_TARGET"] = deployment
@@ -111,22 +165,27 @@ def build_native():
         info["glibc_required"] = max(versions, key=lambda value: tuple(map(int, value.split(".")))) if versions else None
     licenses = output / "licenses"
     licenses.mkdir(exist_ok=True)
-    metadata = json.loads(subprocess.check_output(["cargo", "metadata", "--locked", "--format-version", "1", "--features", "ffi"], cwd=source, env=environment, text=True))
-    notices = []
-    for package in metadata["packages"]:
-        directory = Path(package["manifest_path"]).parent
-        candidates = [p for p in directory.iterdir() if p.is_file() and p.name.lower().startswith(("license", "copying", "notice"))]
-        if package.get("license_file"):
-            candidates.append(directory / package["license_file"])
-        copied = {}
-        for notice in set(candidates):
-            if notice.is_file():
-                target = licenses / (package["name"] + "-" + package["version"]) / notice.name
-                target.parent.mkdir(exist_ok=True)
-                shutil.copyfile(notice, target)
-                copied[notice.name] = digest(notice)
-        notices.append({"package": package["name"], "version": package["version"], "license": package.get("license"), "notice_files": copied})
-    (licenses / "manifest.json").write_text(json.dumps(notices, indent=2) + "\n", encoding="utf-8")
+    rustc = subprocess.check_output(["rustc", "-vV"], text=True)
+    host = next(line.split(": ", 1)[1] for line in rustc.splitlines() if line.startswith("host: "))
+    metadata_bytes = subprocess.check_output(["cargo", "metadata", "--locked", "--format-version", "1",
+                                            "--features", "ffi", "--filter-platform", host], cwd=source, env=environment)
+    (EVIDENCE / "native-cargo-metadata.json").write_bytes(metadata_bytes)
+    metadata = json.loads(metadata_bytes)
+    sdk = [entry for entry in metadata["packages"] if entry["name"] == "parsanol"]
+    if CONFIG.get("parsanol_sdk_revision") and (len(sdk) != 1 or not (sdk[0].get("source") or "").endswith("#" + CONFIG["parsanol_sdk_revision"])):
+        raise RuntimeError("Cargo resolved a different native SDK source")
+    native = ctypes.CDLL(str(binary.resolve()))
+    version = getattr(native, STAGE + "_abi_version")
+    version.argtypes = []
+    version.restype = ctypes.c_uint32
+    if version() != 1:
+        raise RuntimeError("canonical stage model ABI version differs")
+    info.update(abi_version=1, parsanol_sdk_revision=CONFIG.get("parsanol_sdk_revision"))
+    collect_notices(metadata, source, revision, licenses)
+    info.update(cargo_metadata_sha256=hashlib.sha256(metadata_bytes).hexdigest(), rustc=rustc, target=host,
+                source_tree=subprocess.check_output(["git", "rev-parse", "HEAD^{tree}"], cwd=source, text=True).strip(),
+                build_host={"system":platform.system(),"release":platform.release(),"machine":platform.machine()})
+    run(["git", "diff", "--exit-code", "HEAD", "--"], "native-source-unchanged", source)
     (output / "build-info.json").write_text(json.dumps(info, indent=2) + "\n", encoding="utf-8")
     print(f"Built one pinned canonical {STAGE} library for platform wheel {tag}")
 
@@ -162,6 +221,14 @@ def install_wheel(runtime_installed):
             raise RuntimeError("native C ABI payload requires an honest py3-none platform tag")
         if not any(p.endswith("/LICENSE") for p in members):
             raise RuntimeError("upstream license missing from platform wheel")
+        notices = json.loads(archive.read(STAGE + "/_native/licenses/manifest.json"))
+        for entry in notices:
+            if not entry["notice_files"]:
+                raise RuntimeError("native notice entry has no attributable files")
+            for filename, expected_hash in entry["notice_files"].items():
+                path = STAGE + "/_native/licenses/" + entry["directory"] + "/" + filename
+                if hashlib.sha256(archive.read(path)).hexdigest() != expected_hash:
+                    raise RuntimeError("wheel native notice bytes disagree with the source inventory")
         native_info = json.loads(archive.read(STAGE + "/_native/build-info.json"))
         if hashlib.sha256(archive.read(binaries[0])).hexdigest() != native_info["sha256"]:
             raise RuntimeError("wheel native payload checksum mismatch")
@@ -184,6 +251,13 @@ def test_installed(library):
     else:
         os.environ.pop(STAGE.upper() + "_MODEL_CDYLIB", None)
         os.environ.pop("PARSANOL_CDYLIB", None)
+    if not library:
+        for key in list(os.environ):
+            if key in ("PYTHONPATH", "PYTHONHOME", "LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH", "DYLD_FALLBACK_LIBRARY_PATH", "RUST_MIN_STACK") or key.startswith("PARSANOL_"):
+                os.environ.pop(key, None)
+        if sys.platform == "win32":
+            system = os.environ.get("SystemRoot", r"C:\Windows")
+            os.environ["PATH"] = system + r"\System32;" + system
     package = importlib.import_module(STAGE)
     if Path(package.__file__).resolve().is_relative_to(ROOT / "src"):
         raise RuntimeError("CI must exercise an installed wheel, not the source checkout")

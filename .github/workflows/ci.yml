@@ -28,6 +28,8 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: '1.95.0'
+      - name: Validate native source notice closure
+        run: python -m unittest discover -s scripts/tests -v
       - name: Build the pinned public canonical stage once
         run: python scripts/ci.py build-native
       - uses: actions/upload-artifact@v4
