@@ -28,7 +28,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: '1.95.0'
-      - name: Validate native source notice closure
+      - name: Install PyYAML with libyaml
+        run: python -m pip install --disable-pip-version-check "--only-binary=:all:" pyyaml==6.0.3
+      - name: Validate native source notice closure and the replay pin checks
         run: python -m unittest discover -s scripts/tests -v
       - name: Build the pinned public canonical stage once
         run: python scripts/ci.py build-native
@@ -88,4 +90,43 @@ jobs:
           name: platform-wheel-${{ matrix.os }}-${{ matrix.python }}
           path: dist/*-py3-none-*.whl
           if-no-files-found: error
+          retention-days: 7
+  replay:
+    name: Pinned unicode generation replay (${{ matrix.os }})
+    needs: native
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          # The newest Python with PyYAML libyaml wheels on every platform;
+          # the replay reads the generation with CSafeLoader only.
+          python-version: '3.14'
+      - uses: actions/download-artifact@v4
+        with:
+          name: native-${{ matrix.os }}
+          path: .native
+      - name: Install PyYAML with libyaml
+        run: python -m pip install --disable-pip-version-check "--only-binary=:all:" pyyaml==6.0.3
+      - name: Install the pinned public Python runtime and build the wheel
+        run: python scripts/ci.py install-wheel
+      - name: Replay every row of the pinned generation on the installed wheel
+        run: python scripts/corpus_replay.py
+      - name: Check the pin and expected-versus-executed rows with the testsuite validators
+        shell: bash
+        run: |
+          ruby .testsuite/scripts/validate-stages.rb .testsuite --pin ci/testsuite-pin.yml
+          ruby .testsuite/scripts/validate-unicode-external.rb .testsuite --generation 5 --executed .ci-evidence/executed-ids.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: replay-evidence-${{ matrix.os }}
+          include-hidden-files: true
+          path: .ci-evidence/*
+          if-no-files-found: warn
           retention-days: 7

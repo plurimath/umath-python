@@ -1,0 +1,10 @@
+{
+  "commit": "acbdf0319dfb9bc49c1726bdbdedac276476e9b5",
+  "generation": 5,
+  "snapshot_digest": "sha256:282fb3eead874618dda3229320a3a5d061434ea3766c8c95c641e07d49444b10",
+  "note": "Rows this consumer executes from the pinned generation: the 72 generation-4 rows plus the 675 unicode-external rows, per boundary. ids_sha256 is the SHA-256 of the sorted IDs, one per line. Legacy-oracle payloads (72 rows) are counted, not executed.",
+  "executed": {
+    "raw-tree": {"rows": 747, "ids_sha256": "fe6f782bdea0687e31570c086dc1a597b3091dd251038cce14d85e36b0c3ba6c"},
+    "typed-model": {"rows": 747, "ids_sha256": "8a73b4cbf93519406046c4d66ac177511cc50e0707f25f08a4df660bddc88da2"}
+  }
+}
