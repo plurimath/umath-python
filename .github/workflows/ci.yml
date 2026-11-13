@@ -117,6 +117,11 @@ jobs:
         run: python scripts/ci.py install-wheel
       - name: Replay every row of the pinned generation on the installed wheel
         run: python scripts/corpus_replay.py
+      - name: Check the pin and expected-versus-executed rows with the testsuite validators
+        shell: bash
+        run: |
+          ruby .testsuite/scripts/validate-stages.rb .testsuite --pin ci/testsuite-pin.yml
+          ruby .testsuite/scripts/validate-unicode-external.rb .testsuite --generation 5 --executed .ci-evidence/executed-ids.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:

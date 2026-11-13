@@ -207,6 +207,9 @@ def replay(verified: dict) -> dict:
     import umath as stage
     if Path(stage.__file__).resolve().is_relative_to(ROOT / "src"):
         raise ReplayError("replay must exercise an installed wheel, not the source checkout")
+    # Generation 5 rows nest up to 170 wire levels; decode/ordered recurse
+    # about once per level. Raise the limit rather than drop deep rows.
+    sys.setrecursionlimit(max(sys.getrecursionlimit(), 5000))
     sys.path.insert(0, str(ROOT / "tests"))
     from test_full_legacy_corpus import decode
     from test_legacy_policy import ordered
@@ -224,6 +227,7 @@ def replay(verified: dict) -> dict:
             if problem:
                 failures.append({"id": case["id"], "payload": path, "boundary": boundary, "problem": problem})
     return {
+        "executed_ids": sorted(executed["raw-tree"] + executed["typed-model"]),
         "executed": {boundary: {"rows": len(ids), "ids_sha256": sha256("".join(i + "\n" for i in sorted(ids)).encode("utf-8"))}
                      for boundary, ids in executed.items()},
         "not_executed": counted,
@@ -241,6 +245,9 @@ def run(pin_path=PIN, expectation_path=EXPECTATION, workdir=None, evidence=None)
     verified = verify(checkout(pin, workdir), pin)
     report = {"pin": pin, "provenance_sha256": verified["provenance_sha256"], **replay(verified)}
     if evidence:
+        # One ID per line, for scripts/validate-unicode-external.rb --executed.
+        Path(evidence).with_name("executed-ids.txt").write_text(
+            "".join(i + "\n" for i in report["executed_ids"]), encoding="utf-8")
         Path(evidence).write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     summary = {"executed": report["executed"], "not_executed": report["not_executed"], "failures": len(report["failures"])}
     print(json.dumps(summary, indent=2))
