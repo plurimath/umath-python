@@ -17,9 +17,11 @@ Boundaries:
 
 * ``raw-tree`` rows run through ``umath.parse_legacy_raw``: the preprocessed
   text and the whole raw tree, or the refusal byte offset, must be equal.
-* ``typed-model`` rows run through ``umath.parse_model_json`` for their
-  outcome only (accepted or refused). The Ruby LML Document and the Rust
-  codec JSON are different shapes; no tree equality is claimed for them.
+* ``typed-model`` rows run through ``umath.parse_model_json``: a refusal
+  row must be refused, and a model row must produce the same model content,
+  every object with the same fields in the same order and every leaf equal.
+  The row's ``node`` class names have no counterpart in the Rust codec JSON,
+  so the comparison is of field names, order and values.
 * Legacy-oracle payloads (MathML and other target renderings of the old
   facade) are counted and not executed: this package has no such output.
 
@@ -190,6 +192,53 @@ def _raw(stage, case, decode, ordered):
     return None
 
 
+def _model_value(value):
+    """One typed-model expectation value as the codec JSON shape: an object is
+    a list of (field, value) pairs in order, an array a list, a string a str."""
+    if set(value) == {"str"}:
+        return value["str"]
+    if set(value) == {"array"}:
+        return [_model_value(item) for item in value["array"]]
+    if set(value) == {"node", "fields"}:
+        return [(name, _model_value(item)) for name, item in value["fields"]]
+    raise ReplayError(f"unknown typed-model value keys {sorted(value)}")
+
+
+def _model_actual(value):
+    if isinstance(value, dict):
+        return [(name, _model_actual(item)) for name, item in value.items()]
+    if isinstance(value, list):
+        return [_model_actual(item) for item in value]
+    return value
+
+
+def _model_difference(actual, expected, path="$"):
+    """The first path where two models differ, or None. Objects are lists of
+    pairs, so field order counts."""
+    if isinstance(expected, list) != isinstance(actual, list):
+        return f"{path}: actual {type(actual).__name__}, expected {type(expected).__name__}"
+    if not isinstance(expected, list):
+        return None if actual == expected else f"{path}: actual {actual!r}, expected {expected!r}"
+    pairs = bool(expected) and all(isinstance(i, tuple) for i in expected) or \
+        bool(actual) and all(isinstance(i, tuple) for i in actual)
+    if pairs:
+        names_actual, names_expected = [i[0] for i in actual], [i[0] for i in expected]
+        if names_actual != names_expected:
+            return f"{path}: actual fields {names_actual}, expected fields {names_expected}"
+        for (name, left), (_, right) in zip(actual, expected):
+            found = _model_difference(left, right, f"{path}.{name}")
+            if found:
+                return found
+        return None
+    if len(actual) != len(expected):
+        return f"{path}: actual {len(actual)} items, expected {len(expected)}"
+    for index, (left, right) in enumerate(zip(actual, expected)):
+        found = _model_difference(left, right, f"{path}[{index}]")
+        if found:
+            return found
+    return None
+
+
 def _model(stage, case):
     source, decimal = case["input"]["str"], case.get("options", {}).get("decimal", ".")
     expected = case["expected"]
@@ -197,10 +246,13 @@ def _model(stage, case):
         raise ReplayError(f"{case['id']}: unknown typed-model expectation keys {sorted(expected)}")
     refused = "refusal" in expected
     try:
-        stage.parse_model_json(source, decimal=decimal)
+        actual = stage.parse_model_json(source, decimal=decimal)
     except stage.ModelParseError:
         return None if refused else "refused, expected a model"
-    return "accepted, expected a refusal" if refused else None
+    if refused:
+        return "accepted, expected a refusal"
+    found = _model_difference(_model_actual(actual), _model_value(expected["tree"]))
+    return f"model content differs at {found}" if found else None
 
 
 def replay(verified: dict) -> dict:

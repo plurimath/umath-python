@@ -158,6 +158,35 @@ class GenerationVerificationTests(unittest.TestCase):
             with self.subTest(path=bad), self.assertRaises(replay.ReplayError):
                 replay._safe(bad)
 
+class ModelComparatorTests(unittest.TestCase):
+    def node(self, *pairs):
+        return {"node": "N", "fields": [[name, value] for name, value in pairs]}
+
+    def expected(self, value):
+        return replay._model_value(value)
+
+    def test_equal_content_passes(self):
+        tree = self.node(("a", {"str": "x"}), ("b", {"array": [{"str": "y"}]}))
+        actual = {"a": "x", "b": ["y"]}
+        self.assertIsNone(replay._model_difference(replay._model_actual(actual), self.expected(tree)))
+
+    def test_value_field_set_and_order_differences_are_found(self):
+        tree = self.node(("a", {"str": "x"}), ("b", {"str": "y"}))
+        for actual, word in (({"a": "x", "b": "z"}, "expected 'y'"),
+                             ({"a": "x"}, "fields"),
+                             ({"b": "y", "a": "x"}, "fields")):
+            with self.subTest(actual=actual):
+                found = replay._model_difference(replay._model_actual(actual), self.expected(tree))
+                self.assertIn(word, found or "")
+
+    def test_empty_marker_is_a_difference(self):
+        tree = self.node(("empty", {"str": ""}), ("f", {"str": "x"}))
+        self.assertIn("fields", replay._model_difference(replay._model_actual({"f": "x"}), self.expected(tree)))
+
+    def test_unknown_value_shape_is_refused(self):
+        with self.assertRaises(replay.ReplayError):
+            replay._model_value({"other": 1})
+
 
 if __name__ == "__main__":
     unittest.main()
