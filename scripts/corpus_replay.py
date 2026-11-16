@@ -17,7 +17,7 @@ Boundaries:
 
 * ``raw-tree`` rows run through ``umath.parse_legacy_raw``: the preprocessed
   text and the whole raw tree, or the refusal byte offset, must be equal.
-* ``typed-model`` rows run through ``umath.parse_model_json``: a refusal
+* ``typed-model`` rows run through ``umath.parse_model_legacy_json``: a refusal
   row must be refused, and a model row must produce the same model content,
   every object with the same fields in the same order and every leaf equal.
   The row's ``node`` class names have no counterpart in the Rust codec JSON,
@@ -192,36 +192,69 @@ def _raw(stage, case, decode, ordered):
     return None
 
 
+class _Object(list):
+    """A model object as ordered (field, value) pairs, distinct from an array
+    even when empty (the codec renders an empty model as {}, never omits it)."""
+
+
 def _model_value(value):
     """One typed-model expectation value as the codec JSON shape: an object is
-    a list of (field, value) pairs in order, an array a list, a string a str."""
+    an _Object of (field, value) pairs in order, an array a list, a string a str."""
     if set(value) == {"str"}:
         return value["str"]
     if set(value) == {"array"}:
         return [_model_value(item) for item in value["array"]]
     if set(value) == {"node", "fields"}:
-        return [(name, _model_value(item)) for name, item in value["fields"]]
+        return _Object((name, _model_value(item)) for name, item in value["fields"])
     raise ReplayError(f"unknown typed-model value keys {sorted(value)}")
 
 
 def _model_actual(value):
     if isinstance(value, dict):
-        return [(name, _model_actual(item)) for name, item in value.items()]
+        return _Object((name, _model_actual(item)) for name, item in value.items())
     if isinstance(value, list):
         return [_model_actual(item) for item in value]
+    return value
+
+
+def _is_omitted(value):
+    """What the generated writer omits: an empty text or an empty list. An
+    object, even an empty one, is always written."""
+    return value == "" or (type(value) is list and not value)
+
+
+def _drop_omitted(value):
+    """Apply the writer's empty policy to an expected (Ruby) model, or to an
+    actual one, member by member.
+
+    Source: the generated writer renders every member through
+    ``render(out, key, raw, enc, "omit", "omit", shape)`` with shape text,
+    list or scalar (umath-ts src/generated/json/codecs.ts, 427 calls, all
+    "omit"/"omit"; src/generated/json/runtime.ts ``nonEmpty``/``render``): an
+    empty text and an empty list are omitted, a model-valued member never is.
+    The wheel's native codec follows the same declared lutaml mapping default,
+    render_empty false (handoffs/finalization-parallel-20261116/
+    umath-native-abi-contract.md, "Codec contract"). The Ruby model keeps
+    these as in-memory markers (empty, present). Nothing non-empty is dropped.
+    """
+    if isinstance(value, _Object):
+        return _Object((name, kept) for name, kept in
+                       ((name, _drop_omitted(item)) for name, item in value) if not _is_omitted(kept))
+    if isinstance(value, list):
+        return [_drop_omitted(item) for item in value]
     return value
 
 
 def _model_difference(actual, expected, path="$"):
     """The first path where two models differ, or None. Objects are lists of
     pairs, so field order counts."""
+    if isinstance(expected, _Object) != isinstance(actual, _Object):
+        return f"{path}: actual {type(actual).__name__}, expected {type(expected).__name__}"
     if isinstance(expected, list) != isinstance(actual, list):
         return f"{path}: actual {type(actual).__name__}, expected {type(expected).__name__}"
     if not isinstance(expected, list):
         return None if actual == expected else f"{path}: actual {actual!r}, expected {expected!r}"
-    pairs = bool(expected) and all(isinstance(i, tuple) for i in expected) or \
-        bool(actual) and all(isinstance(i, tuple) for i in actual)
-    if pairs:
+    if isinstance(expected, _Object):
         names_actual, names_expected = [i[0] for i in actual], [i[0] for i in expected]
         if names_actual != names_expected:
             return f"{path}: actual fields {names_actual}, expected fields {names_expected}"
@@ -246,12 +279,18 @@ def _model(stage, case):
         raise ReplayError(f"{case['id']}: unknown typed-model expectation keys {sorted(expected)}")
     refused = "refusal" in expected
     try:
-        actual = stage.parse_model_json(source, decimal=decimal)
-    except stage.ModelParseError:
-        return None if refused else "refused, expected a model"
+        actual = stage.parse_model_legacy_json(source, decimal=decimal)
+    except stage.ModelParseError as error:
+        if not refused:
+            return "refused, expected a model"
+        want = expected["refusal"].get("byte_offset")
+        got = error.error.get("byte_offset")
+        if want is not None and got != want:
+            return f"refusal at caller byte {got}, expected {want}"
+        return None
     if refused:
         return "accepted, expected a refusal"
-    found = _model_difference(_model_actual(actual), _model_value(expected["tree"]))
+    found = _model_difference(_drop_omitted(_model_actual(actual)), _drop_omitted(_model_value(expected["tree"])))
     return f"model content differs at {found}" if found else None
 
 

@@ -9,7 +9,7 @@ from .preprocessor import preprocess
 from .legacy import legacy_tree
 from .errors import ParseError
 from .native_library import raw_library_path
-from .model_bridge import parse_model_json, ModelParseError, ModelResourceError, ModelRuntimeUnavailable
+from .model_bridge import parse_model_json, parse_model_legacy_json, ModelParseError, ModelResourceError, ModelRuntimeUnavailable
 
 __version__ = "0.1.0"
 DECIMAL_ENTRIES = {".": "dot", ",": "comma", "٫": "arabic"}
@@ -107,4 +107,4 @@ def parse_legacy_raw(source: str, *, decimal: str = ".") -> RawParseResult:
     bound = declared.apply(artifact.envelope, entry, shape)
     return RawParseResult(source, text, decimal, entry, shape, bound, label, labeled)
 
-__all__ = ["parse_legacy_raw", "parse_model_json", "ModelParseError", "ModelResourceError", "ModelRuntimeUnavailable", "parse_raw", "parse_grammar", "artifact_info", "RawParseResult", "ParseFailed", "ParseError", "ParsanolError", "DECIMAL_ENTRIES"]
+__all__ = ["parse_legacy_raw", "parse_model_json", "parse_model_legacy_json", "ModelParseError", "ModelResourceError", "ModelRuntimeUnavailable", "parse_raw", "parse_grammar", "artifact_info", "RawParseResult", "ParseFailed", "ParseError", "ParsanolError", "DECIMAL_ENTRIES"]

@@ -162,13 +162,14 @@ class ModelComparatorTests(unittest.TestCase):
     def node(self, *pairs):
         return {"node": "N", "fields": [[name, value] for name, value in pairs]}
 
-    def expected(self, value):
-        return replay._model_value(value)
+    def diff(self, actual, expected_tree):
+        left = replay._drop_omitted(replay._model_actual(actual))
+        right = replay._drop_omitted(replay._model_value(expected_tree))
+        return replay._model_difference(left, right)
 
     def test_equal_content_passes(self):
         tree = self.node(("a", {"str": "x"}), ("b", {"array": [{"str": "y"}]}))
-        actual = {"a": "x", "b": ["y"]}
-        self.assertIsNone(replay._model_difference(replay._model_actual(actual), self.expected(tree)))
+        self.assertIsNone(self.diff({"a": "x", "b": ["y"]}, tree))
 
     def test_value_field_set_and_order_differences_are_found(self):
         tree = self.node(("a", {"str": "x"}), ("b", {"str": "y"}))
@@ -176,12 +177,38 @@ class ModelComparatorTests(unittest.TestCase):
                              ({"a": "x"}, "fields"),
                              ({"b": "y", "a": "x"}, "fields")):
             with self.subTest(actual=actual):
-                found = replay._model_difference(replay._model_actual(actual), self.expected(tree))
-                self.assertIn(word, found or "")
+                self.assertIn(word, self.diff(actual, tree) or "")
 
-    def test_empty_marker_is_a_difference(self):
-        tree = self.node(("empty", {"str": ""}), ("f", {"str": "x"}))
-        self.assertIn("fields", replay._model_difference(replay._model_actual({"f": "x"}), self.expected(tree)))
+    def test_omitted_empty_text_and_list_equal_absence(self):
+        tree = self.node(("empty", {"str": ""}), ("l", {"array": []}), ("f", {"str": "x"}))
+        self.assertIsNone(self.diff({"f": "x"}, tree))
+        self.assertIsNone(self.diff({"f": "x", "empty": "", "l": []}, self.node(("f", {"str": "x"}))))
+
+    def test_model_holding_only_an_omitted_marker_is_still_a_model(self):
+        # Ruby: mit_bbb has present '' in memory; the codec writes mit_bbb: {}.
+        tree = self.node(("m", self.node(("present", {"str": ""}))))
+        self.assertIsNone(self.diff({"m": {}}, tree))
+
+    def test_control_dropped_nonempty_value_fails(self):
+        self.assertIn("fields", self.diff({}, self.node(("f", {"str": "x"}))))
+        self.assertIn("fields", self.diff({"f": "x"}, self.node(("empty", {"str": ""}))))
+        self.assertIn("expected 'y'", self.diff({"f": "x"}, self.node(("f", {"str": "y"}))))
+
+    def test_control_absent_vs_present_empty_model_fails(self):
+        # The writer never omits a model, even an empty one.
+        self.assertIn("fields", self.diff({"m": {}}, self.node()))
+        self.assertIn("fields", self.diff({}, self.node(("m", self.node()))))
+        self.assertIn("fields", self.diff({"m": {}}, self.node(("m2", self.node()))))
+
+    def test_control_empty_object_is_not_an_empty_array(self):
+        self.assertIsNotNone(self.diff({"m": {}}, self.node(("m", {"array": []}))))
+        self.assertIsNotNone(self.diff({"m": []}, self.node(("m", self.node()))))
+        self.assertIn("_Object", self.diff({"m": {}}, self.node(("m", {"array": [{"str": "a"}]}))))
+
+    def test_control_nonempty_text_and_list_are_kept(self):
+        self.assertIn("fields", self.diff({"f": "x"}, self.node()))
+        self.assertIn("fields", self.diff({"l": ["a"]}, self.node()))
+        self.assertIn("items", self.diff({"l": ["a"]}, self.node(("l", {"array": [{"str": "a"}, {"str": "b"}]}))))
 
     def test_unknown_value_shape_is_refused(self):
         with self.assertRaises(replay.ReplayError):

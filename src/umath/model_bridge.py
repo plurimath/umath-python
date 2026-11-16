@@ -40,6 +40,10 @@ def _load(path):
         library.umath_abi_version.restype = ctypes.c_uint32
         library.umath_parse_model_json_v1.argtypes = [ctypes.c_char_p, ctypes.c_size_t, ctypes.c_char_p, ctypes.c_size_t]
         library.umath_parse_model_json_v1.restype = ctypes.c_void_p
+        legacy = getattr(library, "umath_parse_model_legacy_json_v1", None)
+        if legacy is not None:
+            legacy.argtypes = [ctypes.c_char_p, ctypes.c_size_t, ctypes.c_char_p, ctypes.c_size_t]
+            legacy.restype = ctypes.c_void_p
         library.umath_free_json_v1.argtypes = [ctypes.c_void_p]
         library.umath_free_json_v1.restype = None
         if library.umath_abi_version() != 1:
@@ -54,7 +58,7 @@ def _library_path():
         raise ModelRuntimeUnavailable("native library missing; install a platform wheel or set UMATH_MODEL_CDYLIB")
     return path
 
-def parse_model_json(source: str, *, decimal: str = ".") -> dict:
+def _parse(source: str, decimal: str, symbol: str) -> dict:
     """Return canonical model JSON as a Python dict through ABI v1.
 
     The platform wheel supplies the canonical Rust stage cdylib. An absolute
@@ -64,8 +68,10 @@ def parse_model_json(source: str, *, decimal: str = ".") -> dict:
     from . import _validate
     _validate(source, decimal)
     library = _load(_library_path())
+    if not hasattr(library, symbol):
+        raise ModelRuntimeUnavailable(f"native library lacks {symbol}")
     encoded, marker = source.encode("utf-8"), decimal.encode("utf-8")
-    pointer = library.umath_parse_model_json_v1(encoded, len(encoded), marker, len(marker))
+    pointer = getattr(library, symbol)(encoded, len(encoded), marker, len(marker))
     if not pointer:
         raise ModelRuntimeUnavailable("canonical umath ABI returned a null result")
     try:
@@ -84,3 +90,20 @@ def parse_model_json(source: str, *, decimal: str = ".") -> dict:
     if result.get("ok") is not True or not isinstance(result.get("model"), dict):
         raise ModelRuntimeUnavailable("invalid canonical umath model payload")
     return result["model"]
+
+def parse_model_json(source: str, *, decimal: str = ".") -> dict:
+    """Return canonical model JSON as a Python dict through ABI v1 (Strict route).
+
+    The platform wheel supplies the canonical Rust stage cdylib. An absolute
+    ``UMATH_MODEL_CDYLIB`` path remains an optional override. This is
+    JSON model data, not Python classes.
+    """
+    return _parse(source, decimal, "umath_parse_model_json_v1")
+
+def parse_model_legacy_json(source: str, *, decimal: str = ".") -> dict:
+    """Opt-in legacy (Parslet-compatible) route; refusal offsets are caller-input bytes.
+
+    Requires a native library exporting ``umath_parse_model_legacy_json_v1``.
+    Strict ``parse_model_json`` stays the default.
+    """
+    return _parse(source, decimal, "umath_parse_model_legacy_json_v1")
