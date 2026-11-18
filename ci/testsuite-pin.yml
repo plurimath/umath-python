@@ -1,0 +1,6 @@
+schema: plurimath-stage/pin/1
+repository: https://github.com/plurimath/plurimath-testsuite
+commit: acbdf0319dfb9bc49c1726bdbdedac276476e9b5
+language: unicode
+generation: 5
+snapshot_digest: sha256:282fb3eead874618dda3229320a3a5d061434ea3766c8c95c641e07d49444b10
