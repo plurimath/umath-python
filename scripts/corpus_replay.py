@@ -294,18 +294,46 @@ def _model(stage, case):
     return f"model content differs at {found}" if found else None
 
 
+_STAGE = None
+
+
+def _stage():
+    """Import the installed wheel once per process, with the replay's limits."""
+    global _STAGE
+    if _STAGE is None:
+        import umath as stage
+        if Path(stage.__file__).resolve().is_relative_to(ROOT / "src"):
+            raise ReplayError("replay must exercise an installed wheel, not the source checkout")
+        # Generation 5 rows nest up to 170 wire levels; decode/ordered recurse
+        # about once per level. Raise the limit rather than drop deep rows.
+        sys.setrecursionlimit(max(sys.getrecursionlimit(), 5000))
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_full_legacy_corpus import decode
+        from test_legacy_policy import ordered
+        _STAGE = (stage, decode, ordered)
+    return _STAGE
+
+
+def _row(task):
+    """Replay one row; returns the problem text or None."""
+    boundary, case = task
+    stage, decode, ordered = _stage()
+    return _raw(stage, case, decode, ordered) if boundary == "raw-tree" else _model(stage, case)
+
+
+def _jobs() -> int:
+    """Worker processes. Every native parse call reloads the 2 MB grammar
+    envelope (the pinned ABI has no compiled-grammar handle), so a row costs
+    a fixed native setup regardless of its size; rows are independent, so
+    they run on every core. UMATH_REPLAY_JOBS overrides."""
+    value = os.environ.get("UMATH_REPLAY_JOBS")
+    return max(1, int(value) if value else (os.cpu_count() or 1))
+
+
 def replay(verified: dict) -> dict:
-    import umath as stage
-    if Path(stage.__file__).resolve().is_relative_to(ROOT / "src"):
-        raise ReplayError("replay must exercise an installed wheel, not the source checkout")
-    # Generation 5 rows nest up to 170 wire levels; decode/ordered recurse
-    # about once per level. Raise the limit rather than drop deep rows.
-    sys.setrecursionlimit(max(sys.getrecursionlimit(), 5000))
-    sys.path.insert(0, str(ROOT / "tests"))
-    from test_full_legacy_corpus import decode
-    from test_legacy_policy import ordered
+    _stage()
     executed = {boundary: [] for boundary in EXECUTED}
-    counted, failures = {}, []
+    counted, tasks, origins = {}, [], []
     for path, document in verified["documents"]:
         boundary = document.get("boundary")
         if boundary not in EXECUTED:
@@ -313,16 +341,27 @@ def replay(verified: dict) -> dict:
             counted[key] = counted.get(key, 0) + len(document["cases"])
             continue
         for case in document["cases"]:
-            problem = _raw(stage, case, decode, ordered) if boundary == "raw-tree" else _model(stage, case)
-            executed[boundary].append(case["id"])
-            if problem:
-                failures.append({"id": case["id"], "payload": path, "boundary": boundary, "problem": problem})
+            tasks.append((boundary, case))
+            origins.append((path, boundary, case["id"]))
+    jobs = min(_jobs(), max(1, len(tasks)))
+    if jobs == 1:
+        problems = [_row(task) for task in tasks]
+    else:
+        from concurrent.futures import ProcessPoolExecutor
+        with ProcessPoolExecutor(max_workers=jobs, initializer=_stage) as pool:
+            problems = list(pool.map(_row, tasks, chunksize=4))
+    failures = []
+    for (path, boundary, identifier), problem in zip(origins, problems, strict=True):
+        executed[boundary].append(identifier)
+        if problem:
+            failures.append({"id": identifier, "payload": path, "boundary": boundary, "problem": problem})
     return {
         "executed_ids": sorted(executed["raw-tree"] + executed["typed-model"]),
         "executed": {boundary: {"rows": len(ids), "ids_sha256": sha256("".join(i + "\n" for i in sorted(ids)).encode("utf-8"))}
                      for boundary, ids in executed.items()},
         "not_executed": counted,
         "failures": failures,
+        "jobs": jobs,
     }
 
 
@@ -340,7 +379,7 @@ def run(pin_path=PIN, expectation_path=EXPECTATION, workdir=None, evidence=None)
         Path(evidence).with_name("executed-ids.txt").write_text(
             "".join(i + "\n" for i in report["executed_ids"]), encoding="utf-8")
         Path(evidence).write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    summary = {"executed": report["executed"], "not_executed": report["not_executed"], "failures": len(report["failures"])}
+    summary = {"jobs": report["jobs"], "executed": report["executed"], "not_executed": report["not_executed"], "failures": len(report["failures"])}
     print(json.dumps(summary, indent=2))
     for failure in report["failures"][:40]:
         print(f"FAIL {failure['id']} [{failure['boundary']}] {failure['problem']}")
