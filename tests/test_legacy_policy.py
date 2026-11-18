@@ -24,6 +24,13 @@ class LegacyPolicyTests(unittest.TestCase):
                     self.assertEqual(raised.exception.byte_offset,row['byte_offset'])
                     if 'grammar_byte_offset'in row:self.assertEqual(raised.exception.grammar_byte_offset,row['grammar_byte_offset'])
 
+    def test_broken_bar_refusals_report_deepest_offsets(self):
+        # Legacy refusals report the Deepest position the Ruby producer reports.
+        for source,grammar in (('\u00a6',1),('a\u00a6',7),('\u03b1\u00a6',13)):
+            with self.subTest(input=source):
+                with self.assertRaises(stage.ParseError)as raised:stage.parse_legacy_raw(source)
+                self.assertEqual(raised.exception.grammar_byte_offset,grammar)
+
     def test_previously_sorted_hash_members_match_unchanged_ruby_fixture_order(self):
         selected = ['x+y', 'α+β#eq1', 'x⫷skip⫸+y', '1,2+3', '1٫2+3']
         rows = json.loads((Path(__file__).parent/'raw-cases.json').read_text())

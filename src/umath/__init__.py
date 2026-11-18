@@ -1,5 +1,6 @@
 """Shared-PARG raw syntax boundary; typed language models are not provided."""
 from __future__ import annotations
+import ctypes
 from dataclasses import dataclass
 from functools import lru_cache
 from importlib.resources import files
@@ -9,7 +10,7 @@ from .preprocessor import preprocess
 from .legacy import legacy_tree
 from .errors import ParseError
 from .native_library import raw_library_path
-from .model_bridge import parse_model_json, ModelParseError, ModelResourceError, ModelRuntimeUnavailable
+from .model_bridge import parse_model_json, parse_model_legacy_json, ModelParseError, ModelResourceError, ModelRuntimeUnavailable
 
 __version__ = "0.1.0"
 DECIMAL_ENTRIES = {".": "dot", ",": "comma", "٫": "arabic"}
@@ -86,6 +87,32 @@ def parse_raw(source: str, *, decimal: str = ".") -> RawParseResult:
         raise ParseError(error, source, text) from error
     return RawParseResult(source, text, decimal, entry, result.shape, result.bindings, label, labeled)
 
+def _deepest_refusal(artifact, entry, text):
+    """Rerun a Parslet refusal with the Deepest failure reporter.
+
+    The source Umath wrapper reports refusals at Ruby's Deepest position, as
+    umath-rs does. Acceptance and tree selection always come from the first
+    pass; this only replaces the refusal wire. Returns None when the rerun
+    does not yield a syntax refusal.
+    """
+    lib = artifact._native.load()
+    if not hasattr(lib, "parsanol_parg_parse_with_reporter"):
+        raise ParsanolError("legacy parsing requires a native engine exposing parsanol_parg_parse_with_reporter")
+    parse = lib.parsanol_parg_parse_with_reporter
+    parse.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_uint32, ctypes.c_uint32]
+    parse.restype = ctypes.c_void_p
+    pointer = parse(artifact.envelope_text.encode("utf-8"), entry.encode("utf-8"), text.encode("utf-8"), 1, 1)
+    if not pointer:
+        return None
+    try:
+        result = json.loads(ctypes.string_at(pointer).decode("utf-8"))
+    finally:
+        lib.parsanol_parg_free(ctypes.c_void_p(pointer))
+    error = result.get("error") if isinstance(result, dict) and result.get("ok") is False else None
+    if not isinstance(error, dict) or "category" in error or error.get("offset") is None:
+        return None
+    return error
+
 def parse_legacy_raw(source: str, *, decimal: str = ".") -> RawParseResult:
     """Explicit legacy stage policy with source-aware rejection offsets.
 
@@ -103,8 +130,11 @@ def parse_legacy_raw(source: str, *, decimal: str = ".") -> RawParseResult:
     try:
         shape = artifact.parse_with_compatibility(text, entry, compatibility="parslet")
     except ParseFailed as error:
+        deepest = _deepest_refusal(artifact, entry, text)
+        if deepest is not None:
+            error = ParseFailed(deepest)
         raise ParseError(error, source, text) from error
     bound = declared.apply(artifact.envelope, entry, shape)
     return RawParseResult(source, text, decimal, entry, shape, bound, label, labeled)
 
-__all__ = ["parse_legacy_raw", "parse_model_json", "ModelParseError", "ModelResourceError", "ModelRuntimeUnavailable", "parse_raw", "parse_grammar", "artifact_info", "RawParseResult", "ParseFailed", "ParseError", "ParsanolError", "DECIMAL_ENTRIES"]
+__all__ = ["parse_legacy_raw", "parse_model_json", "parse_model_legacy_json", "ModelParseError", "ModelResourceError", "ModelRuntimeUnavailable", "parse_raw", "parse_grammar", "artifact_info", "RawParseResult", "ParseFailed", "ParseError", "ParsanolError", "DECIMAL_ENTRIES"]
