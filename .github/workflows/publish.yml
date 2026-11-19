@@ -1,14 +1,27 @@
 name: Publish to PyPI
 
-# Trusted publishing (OIDC): needs the owner-side pending-publisher
-# registration on pypi.org for project `plurimath-umath`, workflow `publish.yml`,
-# environment `pypi`. No API token. Manual dispatch only.
+# Owner-gated release of the wheels built by wheels.yml. It runs only when
+# started by hand (workflow_dispatch) from main, never on a pull request or a
+# push.
 #
-# Wheels only: each platform wheel vendors the native library built from
-# the pinned core by wheels.yml; an sdist could not load it.
+# Owner setup before the first run:
+# - A GitHub environment named `pypi` with required reviewers. The gate job
+#   checks this and stops the run if the environment has no required
+#   reviewers, because GitHub would otherwise create the environment without
+#   protection on first use.
+# - A trusted publisher on pypi.org: project `plurimath-umath`, owner
+#   `plurimath`, repository `umath-python`, workflow `publish.yml`, environment `pypi`.
+#   Uploads use OIDC, so there is no API token.
 #
-# The audit job installs the PUBLISHED release from PyPI on every
-# platform and checks it is this commit's version.
+# Wheels only: each platform wheel carries the native library built from the
+# pinned core by wheels.yml; an sdist could not load it.
+#
+# Before uploading, the publish job checks that every wheel is this commit's
+# version and that PyPI would accept its platform tag (manylinux, musllinux,
+# macosx or win). A plain linux_* wheel stops the run before any upload.
+#
+# The audit job installs the published release from PyPI on each platform and
+# checks it is this commit's version.
 
 on:
   workflow_dispatch:
@@ -16,8 +29,37 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: publish-pypi
+  cancel-in-progress: false
+
 jobs:
+  gate:
+    name: Owner gate
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: The pypi environment requires reviewers
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          rules=$(gh api "repos/$GITHUB_REPOSITORY/environments/pypi" \
+            --jq '[.protection_rules[]? | select(.type == "required_reviewers") | .reviewers | length] | add // 0') || {
+            echo "::error::environment pypi not found; create it with required reviewers first"
+            exit 1
+          }
+          if [ "$rules" -lt 1 ]; then
+            echo "::error::environment pypi has no required reviewers"
+            exit 1
+          fi
+          echo "pypi environment has $rules required reviewer(s)"
+
   wheels:
+    needs: gate
     uses: ./.github/workflows/wheels.yml
 
   publish:
@@ -27,11 +69,36 @@ jobs:
     permissions:
       id-token: write
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           pattern: wheels-*
           path: dist
           merge-multiple: true
+      - name: Check version, count and PyPI-acceptable tags
+        shell: python
+        run: |
+          import pathlib, re, sys, zipfile
+          want = re.search(r'^version\s*=\s*"([^"]+)"', pathlib.Path("pyproject.toml").read_text(), re.M).group(1)
+          wheels = sorted(pathlib.Path("dist").glob("*.whl"))
+          errors = []
+          for wheel in wheels:
+              print(wheel.name)
+              parts = wheel.name[:-4].split("-")
+              if parts[0] != "plurimath_umath" or parts[1] != want:
+                  errors.append(f"{wheel.name} is not plurimath-umath {want}")
+              if not re.match(r"(manylinux|musllinux|macosx|win)", parts[-1]):
+                  errors.append(f"{wheel.name}: PyPI rejects platform tag {parts[-1]}")
+              with zipfile.ZipFile(wheel) as archive:
+                  meta = next(n for n in archive.namelist() if n.endswith(".dist-info/METADATA"))
+                  for line in archive.read(meta).decode().splitlines():
+                      if line.startswith("Requires-Dist:") and " @ " in line:
+                          errors.append(f"{wheel.name}: PyPI rejects direct URL dependency {line}")
+          if len(wheels) != 3:
+              errors.append(f"expected 3 wheels, found {len(wheels)}")
+          for error in errors:
+              print(f"::error::{error}")
+          sys.exit(1 if errors else 0)
       - uses: pypa/gh-action-pypi-publish@release/v1
 
   audit:
@@ -46,33 +113,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install the PUBLISHED release from PyPI
+      - name: Install the published release from PyPI
         shell: bash
-        # The CDN can lag the upload; retry instead of failing on a 404.
+        # The CDN can lag the upload by a few seconds, so retry.
         run: |
+          set -euo pipefail
+          want=$(sed -n 's/^version = "\(.*\)"$/\1/p' pyproject.toml)
+          python -m venv "$RUNNER_TEMP/clean"
+          if [ "$RUNNER_OS" = Windows ]; then py="$RUNNER_TEMP/clean/Scripts/python.exe"; else py="$RUNNER_TEMP/clean/bin/python"; fi
           for attempt in $(seq 1 12); do
-            python3 -m pip install --upgrade --no-cache-dir plurimath-umath && break
+            "$py" -m pip install --no-cache-dir --only-binary=:all: "plurimath-umath==$want" && break
+            if [ "$attempt" -eq 12 ]; then exit 1; fi
             echo "attempt $attempt: not visible yet; retrying"
             sleep 15
           done
-      - name: The installed version is this commit's version
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          import importlib.metadata as m
-          import pathlib
-          import re
-          files = [pathlib.Path(p) for p in ("pyproject.toml", "setup.py")]
-          want = next(
-              found.group(1)
-              for found in (
-                  re.search(r'\bversion\s*=\s*"([^"]+)"', p.read_text())
-                  for p in files if p.exists()
-              )
-              if found
-          )
-          got = m.version("plurimath-umath")
-          assert got == want, f"PyPI served {got}, this commit is {want}"
-          import umath
-          print("audited plurimath-umath", got)
-          PY
+          cd "$RUNNER_TEMP"
+          "$py" -I -c "import importlib.metadata as m, umath; v = m.version('plurimath-umath'); assert v == '$want', v; print('audited plurimath-umath', v)"
