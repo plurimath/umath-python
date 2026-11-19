@@ -195,9 +195,13 @@ def install_wheel(runtime_installed):
     if not runtime_installed:
         if CONFIG["python_runtime"].get("public_source_available") is False:
             raise RuntimeError("explicit-context runtime source is not public yet; co-install the exact approved local candidate and use --runtime-installed")
-        repository, revision = source_pin(CONFIG["python_runtime"])
+        # The released PyPI version that pyproject.toml allows; PyPI rejects
+        # direct-URL (git) dependencies, so CI tests what users will install.
+        requirement = CONFIG["python_runtime"]["requirement"]
+        if not re.fullmatch(r"parsanol==[0-9]+(\.[0-9]+)+", requirement):
+            raise ValueError("the Parsanol runtime must be one released PyPI version")
         run([sys.executable, "-m", "pip", "install", "--disable-pip-version-check",
-             f"parsanol @ git+https://github.com/{repository}.git@{revision}"], "runtime-install")
+             requirement], "runtime-install")
     else:
         from parsanol import NativeContext
         if not callable(NativeContext):
@@ -206,6 +210,9 @@ def install_wheel(runtime_installed):
     if runtime_installed:
         command.insert(4, "--no-build-isolation")
     run(command, "wheel-build")
+    # linux_* -> the manylinux policy auditwheel measures; twine check; tag listing.
+    subprocess.run([sys.executable, str(ROOT / "scripts/wheel_tags.py"), str(ROOT / "dist")],
+                   cwd=ROOT, check=True)
     expected = "latexmath" if STAGE == "latexmath" else "plurimath_" + STAGE
     wheels = [p for p in (ROOT / "dist").glob(expected + "-*.whl") if not p.name.endswith("-any.whl")]
     if len(wheels) != 1:

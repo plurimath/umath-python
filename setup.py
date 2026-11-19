@@ -60,7 +60,8 @@ class PlatformWheel(bdist_wheel):
     def get_tag(self):
         _, info = native_info()
         # ctypes uses the stable C ABI, not a CPython extension ABI.
-        # Linux remains linux_*; no manylinux compatibility is asserted.
+        # Linux builds as linux_*; scripts/wheel_tags.py then retags it with the
+        # manylinux policy that auditwheel measures for the bundled library.
         return "py3", "none", info["wheel_platform_tag"]
 
 setup(distclass=NativeDistribution, cmdclass={"build_py": NativeBuild, "bdist_wheel": PlatformWheel})
