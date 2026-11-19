@@ -13,7 +13,7 @@ def ordered(value):
 
 class LegacyPolicyTests(unittest.TestCase):
     def test_fixed_ruby_raw_trees_offsets_and_hash_order(self):
-        rows=json.loads((Path(__file__).parent/'legacy-cases.json').read_text())['cases']
+        rows=json.loads((Path(__file__).parent/'legacy-cases.json').read_text(encoding='utf-8'))['cases']
         for row in rows:
             with self.subTest(input=row['input']):
                 if row['ok']:
@@ -33,7 +33,7 @@ class LegacyPolicyTests(unittest.TestCase):
 
     def test_previously_sorted_hash_members_match_unchanged_ruby_fixture_order(self):
         selected = ['x+y', 'α+β#eq1', 'x⫷skip⫸+y', '1,2+3', '1٫2+3']
-        rows = json.loads((Path(__file__).parent/'raw-cases.json').read_text())
+        rows = json.loads((Path(__file__).parent/'raw-cases.json').read_text(encoding='utf-8'))
         matched = [row for row in rows if row['input'] in selected and row['ok']]
         self.assertEqual(len(matched), len(selected))
         for row in matched:

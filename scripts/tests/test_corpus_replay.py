@@ -137,7 +137,7 @@ class GenerationVerificationTests(unittest.TestCase):
             ledger["entries"][0]["snapshot_digest"] = digest
             dump(root / "generations/unicode.yaml", ledger)
         root, pin = self.build(drop)
-        pin["snapshot_digest"] = yaml.safe_load((root / "generations/unicode.yaml").read_text())["entries"][0]["snapshot_digest"]
+        pin["snapshot_digest"] = yaml.safe_load((root / "generations/unicode.yaml").read_text(encoding='utf-8'))["entries"][0]["snapshot_digest"]
         with self.assertRaisesRegex(replay.ReplayError, "row IDs differ"):
             replay.verify(root, pin)
 

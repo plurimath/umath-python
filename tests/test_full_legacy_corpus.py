@@ -25,7 +25,7 @@ def decode(node,text):
 @unittest.skipUnless(os.environ.get('PLURIMATH_FULL_RAW_CORPUS')=='1','full corpus runs in native platform CI')
 class FullLegacyCorpusTests(unittest.TestCase):
     def test_complete_frozen_raw_corpus(self):
-        corpus=json.loads((Path(__file__).parent/'fixtures/full-raw.json').read_text())
+        corpus=json.loads((Path(__file__).parent/'fixtures/full-raw.json').read_text(encoding='utf-8'))
         for row in corpus['cases']:
             with self.subTest(id=row['id']):
                 source=row['input']['str'];decimal=row.get('options',{}).get('decimal','.')
