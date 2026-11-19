@@ -85,9 +85,10 @@ measured results are saved under `.ci-evidence/`. Fixture origins and the two
 known AsciiMath native reporter differences are recorded with the tests.
 
 Native wheels are tagged `py3-none` with their actual platform. Linux builds
-use `linux_*` tags and record their native requirements; no manylinux promise
-is inferred. macOS builds use an explicit deployment target and one
-architecture, not a universal claim. Native source pins, binary hashes, and
+start as `linux_*`, which PyPI does not accept. `scripts/wheel_tags.py` then
+retags them with the manylinux policy that `auditwheel show` measures for the
+bundled library; the library bytes do not change. macOS builds use an
+explicit deployment target and one architecture, not a universal claim. Native source pins, binary hashes, and
 license notices are shipped under `_native/`. The installed-wheel runner
 clears both library overrides and verifies both APIs still work without
 changing Parsanol's default native singleton.
